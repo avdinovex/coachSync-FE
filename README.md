@@ -52,3 +52,4 @@ dart run build_runner watch --delete-conflicting-outputs
 ```
 
 Refer to `GRAPHQL_CODEGEN_SETUP.md` in the backend repo for shared guidance on schema/codegen conventions.
+"# coachSync-FE" 
