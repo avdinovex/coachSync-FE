@@ -1,0 +1,59 @@
+query GetMyTeams {
+  myTeams {
+    id
+    name
+    sport
+    description
+    joinCode
+    createdAt
+    updatedAt
+    members {
+      id
+      userId
+      role
+      user {
+        id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+}
+
+mutation CreateTeam($input: CreateTeamInput!) {
+  createTeam(createTeamInput: $input) {
+    id
+    name
+    sport
+    description
+    joinCode
+    createdAt
+    updatedAt
+    members {
+      id
+      userId
+      role
+    }
+  }
+}
+
+mutation AddTeamMember($input: AddTeamMemberInput!) {
+  addTeamMember(addMemberInput: $input) {
+    id
+    teamId
+    userId
+    role
+    joinedAt
+  }
+}
+
+mutation JoinTeam($joinCode: String!) {
+  joinTeam(joinCode: $joinCode) {
+    id
+    teamId
+    userId
+    role
+    joinedAt
+  }
+}

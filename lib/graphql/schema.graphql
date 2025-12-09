@@ -1,0 +1,292 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddTeamMemberInput {
+  role: MemberRole!
+  teamId: String!
+  userId: String!
+}
+
+type Auth {
+  createdAt: DateTime!
+  email: String!
+  emailVerified: DateTime
+  firstName: String
+  id: String!
+  lastName: String
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+type AuthResponse {
+  accessToken: String!
+  user: Auth!
+}
+
+input CreateEventInput {
+  description: String
+  endTime: DateTime
+  eventType: EventType!
+  location: String
+  startTime: DateTime!
+  teamId: String!
+  title: String!
+}
+
+input CreateNotificationInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateRsvpInput {
+  eventId: String!
+  status: RsvpStatus!
+}
+
+input CreateTeamInput {
+  description: String
+  name: String!
+  sport: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Event {
+  createdAt: DateTime!
+  createdBy: String!
+  description: String
+  endTime: DateTime
+  eventType: EventType!
+  id: String!
+  location: String
+  rsvps: [EventRsvp!]
+  startTime: DateTime!
+  teamId: String!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type EventRsvp {
+  createdAt: DateTime!
+  eventId: String!
+  id: String!
+  respondedAt: DateTime
+  status: RsvpStatus!
+  updatedAt: DateTime!
+  user: User
+  userId: String!
+}
+
+enum EventType {
+  GAME
+  MEETING
+  PRACTICE
+}
+
+type GameStat {
+  createdAt: DateTime!
+  eventId: String!
+  finalScore: String
+  id: String!
+  notes: String
+  opponentName: String
+  playerStats: [PlayerStat!]
+  teamId: String!
+  updatedAt: DateTime!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+"""Role of the team member"""
+enum MemberRole {
+  COACH
+  LEADER
+  PARENT
+  PLAYER
+}
+
+type Message {
+  content: String!
+  createdAt: DateTime!
+  id: String!
+  teamId: String!
+  user: User
+  userId: String!
+}
+
+type Mutation {
+  addTeamMember(addMemberInput: AddTeamMemberInput!): TeamMember!
+  createEvent(createEventInput: CreateEventInput!): Event!
+  createNotification(createNotificationInput: CreateNotificationInput!): Notification!
+  createRsvp(createRsvpInput: CreateRsvpInput!): EventRsvp!
+  createTeam(createTeamInput: CreateTeamInput!): Team!
+  joinTeam(joinCode: String!): TeamMember!
+  login(loginInput: LoginInput!): AuthResponse!
+  recordGameStats(recordGameStatsInput: RecordGameStatsInput!): GameStat!
+  removeEvent(id: String!): Boolean!
+  removeNotification(id: Int!): Notification!
+  removeTeam(id: String!): Boolean!
+  removeTeamMember(teamId: String!, userId: String!): Boolean!
+  sendMessage(sendMessageInput: SendMessageInput!): Message!
+  signup(signupInput: SignupInput!): AuthResponse!
+  updateEvent(updateEventInput: UpdateEventInput!): Event!
+  updateNotification(updateNotificationInput: UpdateNotificationInput!): Notification!
+  updateProfile(updateProfileInput: UpdateProfileInput!): User!
+  updateRsvp(updateRsvpInput: UpdateRsvpInput!): EventRsvp!
+  updateTeam(updateTeamInput: UpdateTeamInput!): Team!
+}
+
+type Notification {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type PlayerStat {
+  assists: Int
+  createdAt: DateTime!
+  gameStatsId: String!
+  id: String!
+  minutesPlayed: Int
+  points: Int
+  rebounds: Int
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type Query {
+  event(id: String!): Event!
+  eventRsvps(eventId: String!): [EventRsvp!]!
+  events(teamId: String!): [Event!]!
+  gameStats(eventId: String!): GameStat!
+  me: Auth!
+  messages(limit: Int, teamId: String!): [Message!]!
+  myTeams: [Team!]!
+  notification(id: Int!): Notification!
+  team(id: String!): Team!
+  teamStats(teamId: String!): [GameStat!]!
+  teams: [Team!]!
+  upcomingEvents(teamId: String!): [Event!]!
+  user(id: String!): User!
+}
+
+input RecordGameStatsInput {
+  eventId: String!
+  finalScore: String
+  notes: String
+  opponentName: String
+  playerStats: [RecordPlayerStatInput!]
+  teamId: String!
+}
+
+input RecordPlayerStatInput {
+  assists: Int = 0
+  minutesPlayed: Int = 0
+  points: Int = 0
+  rebounds: Int = 0
+  userId: String!
+}
+
+enum RsvpStatus {
+  COMING
+  NOT_COMING
+  TBD
+}
+
+input SendMessageInput {
+  content: String!
+  teamId: String!
+}
+
+input SignupInput {
+  email: String!
+  firstName: String
+  lastName: String
+  password: String!
+  role: UserRole = USER
+}
+
+type Subscription {
+  eventUpdated(teamId: String!): Event!
+  messageAdded(teamId: String!): Message!
+}
+
+type Team {
+  createdAt: DateTime!
+  createdBy: String!
+  description: String
+  id: String!
+  joinCode: String!
+  members: [TeamMember!]
+  name: String!
+  sport: String!
+  updatedAt: DateTime!
+}
+
+type TeamMember {
+  id: String!
+  joinedAt: DateTime!
+  role: MemberRole!
+  teamId: String!
+  user: User
+  userId: String!
+}
+
+input UpdateEventInput {
+  description: String
+  endTime: DateTime
+  eventType: EventType
+  id: String!
+  location: String
+  startTime: DateTime
+  teamId: String
+  title: String
+}
+
+input UpdateNotificationInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateProfileInput {
+  firstName: String
+  lastName: String
+}
+
+input UpdateRsvpInput {
+  eventId: String!
+  status: RsvpStatus!
+}
+
+input UpdateTeamInput {
+  description: String
+  id: String!
+  name: String
+  newRole: String
+  sport: String
+  targetUserId: String
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  emailVerified: DateTime
+  firstName: String
+  id: String!
+  lastName: String
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+"""Role of the user"""
+enum UserRole {
+  ADMIN
+  USER
+}
