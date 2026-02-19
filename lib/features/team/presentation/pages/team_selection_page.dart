@@ -5,6 +5,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../data/team_service.dart';
 import '../../domain/models/team.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import 'team_detail_page.dart';
 
 
 class TeamSelectionPage extends StatefulWidget {
@@ -160,7 +161,21 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
       onRefresh: _loadTeams,
       child: ListView.separated(
         itemCount: _teams.length,
-        itemBuilder: (_, index) => _TeamCard(team: _teams[index]),
+        itemBuilder: (_, index) => _TeamCard(
+          team: _teams[index],
+          onTap: () async {
+            final result = await Navigator.push<String>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TeamDetailPage(
+                  teamId: _teams[index].id,
+                  teamName: _teams[index].name,
+                ),
+              ),
+            );
+            if (result == 'deleted') _loadTeams();
+          },
+        ),
         separatorBuilder: (_, __) => const SizedBox(height: 12),
       ),
     );
@@ -168,13 +183,19 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
 }
 
 class _TeamCard extends StatelessWidget {
-  const _TeamCard({required this.team});
+  const _TeamCard({required this.team, this.onTap});
 
   final Team team;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey[900],
@@ -245,6 +266,8 @@ class _TeamCard extends StatelessWidget {
             style: TextStyle(color: Colors.grey[500], fontSize: 12),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

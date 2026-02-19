@@ -40,6 +40,10 @@ class CustomHttpLink extends Link {
 class GraphQLClientFactory {
   GraphQLClientFactory._();
 
+  /// Singleton instance — reused across the app to avoid repeated WebSocket
+  /// connection attempts on every service instantiation.
+  static graphql.GraphQLClient? _cachedClient;
+
   static CustomHttpLink _createHttpLink() {
     return CustomHttpLink(
       kGraphqlEndpoint,
@@ -55,13 +59,7 @@ class GraphQLClientFactory {
       cache: graphql.GraphQLCache(store: graphql.InMemoryStore()),
       link: graphql_flutter.AuthLink(
         getToken: () async {
-          print('🔵 [GraphQLClientFactory] Getting auth token...');
           final token = await AuthService.getStoredToken();
-          if (token != null) {
-            print('🟢 [GraphQLClientFactory] Auth token found (length: ${token.length})');
-          } else {
-            print('⚠️ [GraphQLClientFactory] No auth token found');
-          }
           return token != null ? 'Bearer $token' : null;
         },
       ).concat(_createHttpLink()),
@@ -77,10 +75,15 @@ class GraphQLClientFactory {
     );
   }
 
-  /// Client for authenticated requests (adds Authorization header per request).
-  /// Creates a fresh client instance to avoid connection reuse issues.
+  /// Singleton authenticated client — created once and reused.
+  /// Call [resetClient] after logout so a fresh client is created on next use.
   static graphql.GraphQLClient get authenticatedClient {
-    print('🔵 [GraphQLClientFactory] Creating fresh authenticated client for endpoint: $kGraphqlEndpoint');
-    return _createClient();
+    _cachedClient ??= _createClient();
+    return _cachedClient!;
+  }
+
+  /// Call this on logout / token change to force a new client next time.
+  static void resetClient() {
+    _cachedClient = null;
   }
 }

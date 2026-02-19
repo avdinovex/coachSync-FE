@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../constants/environment.dart';
 import '../../graphql/schema.graphql.dart';
 import '../../graphql/operations/auth.graphql.dart';
+import 'graphql_client_factory.dart';
 
 class AuthService {
   static const _storage = FlutterSecureStorage();
@@ -114,6 +115,8 @@ class AuthService {
   static Future<void> clearToken() async {
     _currentUser = null;
     await _storage.delete(key: _tokenKey);
+    // Reset cached GraphQL client so the new session gets a clean client.
+    GraphQLClientFactory.resetClient();
   }
 
   static Mutation$Login$login _extractLoginPayload(
