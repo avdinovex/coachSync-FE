@@ -35,24 +35,36 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
   }
 
   Future<void> _loadTeams() async {
+    print('🔵 [TeamSelectionPage] _loadTeams started');
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
+      print('🔵 [TeamSelectionPage] Calling TeamService.fetchMyTeams()');
       final teams = await _teamService.fetchMyTeams();
-      if (!mounted) return;
+      print('🟢 [TeamSelectionPage] Teams fetched: ${teams.length} teams');
+      
+      if (!mounted) {
+        print('⚠️ [TeamSelectionPage] Widget not mounted, skipping UI update');
+        return;
+      }
+      
       setState(() {
         _teams
           ..clear()
           ..addAll(teams);
       });
-    } on TimeoutException catch (_) {
+      print('🟢 [TeamSelectionPage] UI updated with teams');
+    } on TimeoutException catch (e) {
+      print('🔴 [TeamSelectionPage] TimeoutException caught: $e');
       if (!mounted) return;
       setState(() {
         _error = 'Connection timeout. Please check your internet connection and try again.';
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('🔴 [TeamSelectionPage] Error caught: $e');
+      print('🔴 [TeamSelectionPage] Stack trace: $stackTrace');
       if (!mounted) return;
       setState(() {
         _error = e.toString()
@@ -64,6 +76,7 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
         setState(() {
           _loading = false;
         });
+        print('🔵 [TeamSelectionPage] _loadTeams completed');
       }
     }
   }

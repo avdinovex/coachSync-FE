@@ -1,6 +1,6 @@
 class Input$AddTeamMemberInput {
   factory Input$AddTeamMemberInput({
-    required Enum$MemberRole role,
+    required List<Enum$MemberRole> role,
     required String teamId,
     required String userId,
   }) => Input$AddTeamMemberInput._({
@@ -14,7 +14,9 @@ class Input$AddTeamMemberInput {
   factory Input$AddTeamMemberInput.fromJson(Map<String, dynamic> data) {
     final result$data = <String, dynamic>{};
     final l$role = data['role'];
-    result$data['role'] = fromJson$Enum$MemberRole((l$role as String));
+    result$data['role'] = (l$role as List<dynamic>)
+        .map((e) => fromJson$Enum$MemberRole((e as String)))
+        .toList();
     final l$teamId = data['teamId'];
     result$data['teamId'] = (l$teamId as String);
     final l$userId = data['userId'];
@@ -24,7 +26,7 @@ class Input$AddTeamMemberInput {
 
   Map<String, dynamic> _$data;
 
-  Enum$MemberRole get role => (_$data['role'] as Enum$MemberRole);
+  List<Enum$MemberRole> get role => (_$data['role'] as List<Enum$MemberRole>);
 
   String get teamId => (_$data['teamId'] as String);
 
@@ -33,7 +35,7 @@ class Input$AddTeamMemberInput {
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
     final l$role = role;
-    result$data['role'] = toJson$Enum$MemberRole(l$role);
+    result$data['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$teamId = teamId;
     result$data['teamId'] = l$teamId;
     final l$userId = userId;
@@ -55,8 +57,15 @@ class Input$AddTeamMemberInput {
     }
     final l$role = role;
     final lOther$role = other.role;
-    if (l$role != lOther$role) {
+    if (l$role.length != lOther$role.length) {
       return false;
+    }
+    for (int i = 0; i < l$role.length; i++) {
+      final l$role$entry = l$role[i];
+      final lOther$role$entry = lOther$role[i];
+      if (l$role$entry != lOther$role$entry) {
+        return false;
+      }
     }
     final l$teamId = teamId;
     final lOther$teamId = other.teamId;
@@ -76,7 +85,11 @@ class Input$AddTeamMemberInput {
     final l$role = role;
     final l$teamId = teamId;
     final l$userId = userId;
-    return Object.hashAll([l$role, l$teamId, l$userId]);
+    return Object.hashAll([
+      Object.hashAll(l$role.map((v) => v)),
+      l$teamId,
+      l$userId,
+    ]);
   }
 }
 
@@ -89,7 +102,7 @@ abstract class CopyWith$Input$AddTeamMemberInput<TRes> {
   factory CopyWith$Input$AddTeamMemberInput.stub(TRes res) =
       _CopyWithStubImpl$Input$AddTeamMemberInput;
 
-  TRes call({Enum$MemberRole? role, String? teamId, String? userId});
+  TRes call({List<Enum$MemberRole>? role, String? teamId, String? userId});
 }
 
 class _CopyWithImpl$Input$AddTeamMemberInput<TRes>
@@ -109,7 +122,8 @@ class _CopyWithImpl$Input$AddTeamMemberInput<TRes>
   }) => _then(
     Input$AddTeamMemberInput._({
       ..._instance._$data,
-      if (role != _undefined && role != null) 'role': (role as Enum$MemberRole),
+      if (role != _undefined && role != null)
+        'role': (role as List<Enum$MemberRole>),
       if (teamId != _undefined && teamId != null) 'teamId': (teamId as String),
       if (userId != _undefined && userId != null) 'userId': (userId as String),
     }),
@@ -122,7 +136,7 @@ class _CopyWithStubImpl$Input$AddTeamMemberInput<TRes>
 
   TRes _res;
 
-  call({Enum$MemberRole? role, String? teamId, String? userId}) => _res;
+  call({List<Enum$MemberRole>? role, String? teamId, String? userId}) => _res;
 }
 
 class Input$CreateEventInput {
@@ -2253,7 +2267,7 @@ class Input$UpdateTeamInput {
     String? description,
     required String id,
     String? name,
-    String? newRole,
+    List<Enum$MemberRole>? newRole,
     String? sport,
     String? targetUserId,
   }) => Input$UpdateTeamInput._({
@@ -2281,7 +2295,9 @@ class Input$UpdateTeamInput {
     }
     if (data.containsKey('newRole')) {
       final l$newRole = data['newRole'];
-      result$data['newRole'] = (l$newRole as String?);
+      result$data['newRole'] = (l$newRole as List<dynamic>?)
+          ?.map((e) => fromJson$Enum$MemberRole((e as String)))
+          .toList();
     }
     if (data.containsKey('sport')) {
       final l$sport = data['sport'];
@@ -2302,7 +2318,8 @@ class Input$UpdateTeamInput {
 
   String? get name => (_$data['name'] as String?);
 
-  String? get newRole => (_$data['newRole'] as String?);
+  List<Enum$MemberRole>? get newRole =>
+      (_$data['newRole'] as List<Enum$MemberRole>?);
 
   String? get sport => (_$data['sport'] as String?);
 
@@ -2322,7 +2339,9 @@ class Input$UpdateTeamInput {
     }
     if (_$data.containsKey('newRole')) {
       final l$newRole = newRole;
-      result$data['newRole'] = l$newRole;
+      result$data['newRole'] = l$newRole
+          ?.map((e) => toJson$Enum$MemberRole(e))
+          .toList();
     }
     if (_$data.containsKey('sport')) {
       final l$sport = sport;
@@ -2373,7 +2392,18 @@ class Input$UpdateTeamInput {
     if (_$data.containsKey('newRole') != other._$data.containsKey('newRole')) {
       return false;
     }
-    if (l$newRole != lOther$newRole) {
+    if (l$newRole != null && lOther$newRole != null) {
+      if (l$newRole.length != lOther$newRole.length) {
+        return false;
+      }
+      for (int i = 0; i < l$newRole.length; i++) {
+        final l$newRole$entry = l$newRole[i];
+        final lOther$newRole$entry = lOther$newRole[i];
+        if (l$newRole$entry != lOther$newRole$entry) {
+          return false;
+        }
+      }
+    } else if (l$newRole != lOther$newRole) {
       return false;
     }
     final l$sport = sport;
@@ -2408,7 +2438,11 @@ class Input$UpdateTeamInput {
       _$data.containsKey('description') ? l$description : const {},
       l$id,
       _$data.containsKey('name') ? l$name : const {},
-      _$data.containsKey('newRole') ? l$newRole : const {},
+      _$data.containsKey('newRole')
+          ? l$newRole == null
+                ? null
+                : Object.hashAll(l$newRole.map((v) => v))
+          : const {},
       _$data.containsKey('sport') ? l$sport : const {},
       _$data.containsKey('targetUserId') ? l$targetUserId : const {},
     ]);
@@ -2428,7 +2462,7 @@ abstract class CopyWith$Input$UpdateTeamInput<TRes> {
     String? description,
     String? id,
     String? name,
-    String? newRole,
+    List<Enum$MemberRole>? newRole,
     String? sport,
     String? targetUserId,
   });
@@ -2457,7 +2491,7 @@ class _CopyWithImpl$Input$UpdateTeamInput<TRes>
       if (description != _undefined) 'description': (description as String?),
       if (id != _undefined && id != null) 'id': (id as String),
       if (name != _undefined) 'name': (name as String?),
-      if (newRole != _undefined) 'newRole': (newRole as String?),
+      if (newRole != _undefined) 'newRole': (newRole as List<Enum$MemberRole>?),
       if (sport != _undefined) 'sport': (sport as String?),
       if (targetUserId != _undefined) 'targetUserId': (targetUserId as String?),
     }),
@@ -2474,7 +2508,7 @@ class _CopyWithStubImpl$Input$UpdateTeamInput<TRes>
     String? description,
     String? id,
     String? name,
-    String? newRole,
+    List<Enum$MemberRole>? newRole,
     String? sport,
     String? targetUserId,
   }) => _res;

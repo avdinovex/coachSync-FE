@@ -13,17 +13,32 @@ class TeamService {
   final graphql.GraphQLClient _client;
 
   Future<List<Team>> fetchMyTeams() async {
-    final result = await _client.query$GetMyTeams(
-      Options$Query$GetMyTeams(fetchPolicy: graphql.FetchPolicy.noCache),
-    );
-    if (result.hasException) {
-      throw TeamException(_formatException(result.exception));
+    print('🔵 [TeamService] fetchMyTeams called');
+    try {
+      print('🔵 [TeamService] Sending GraphQL query to fetch teams...');
+      final result = await _client.query$GetMyTeams(
+        Options$Query$GetMyTeams(fetchPolicy: graphql.FetchPolicy.noCache),
+      );
+      print('🔵 [TeamService] GraphQL query completed');
+      
+      if (result.hasException) {
+        print('🔴 [TeamService] GraphQL exception: ${result.exception}');
+        throw TeamException(_formatException(result.exception));
+      }
+      
+      final data = result.parsedData;
+      if (data == null) {
+        print('🔴 [TeamService] No data returned');
+        throw TeamException('No data returned for my teams');
+      }
+      
+      final teams = data.myTeams.map(Team.fromMyTeamsQuery).toList();
+      print('🟢 [TeamService] Successfully fetched ${teams.length} teams');
+      return teams;
+    } catch (e) {
+      print('🔴 [TeamService] Error in fetchMyTeams: $e');
+      rethrow;
     }
-    final data = result.parsedData;
-    if (data == null) {
-      throw TeamException('No data returned for my teams');
-    }
-    return data.myTeams.map(Team.fromMyTeamsQuery).toList();
   }
 
   Future<Team> createTeam({
@@ -31,26 +46,40 @@ class TeamService {
     required String sport,
     String? description,
   }) async {
-    final result = await _client.mutate$CreateTeam(
-      Options$Mutation$CreateTeam(
-        variables: Variables$Mutation$CreateTeam(
-          input: Input$CreateTeamInput(
-            name: name,
-            sport: sport,
-            description: description,
+    print('🔵 [TeamService] createTeam called: name=$name, sport=$sport');
+    try {
+      print('🔵 [TeamService] Sending GraphQL mutation to create team...');
+      final result = await _client.mutate$CreateTeam(
+        Options$Mutation$CreateTeam(
+          variables: Variables$Mutation$CreateTeam(
+            input: Input$CreateTeamInput(
+              name: name,
+              sport: sport,
+              description: description,
+            ),
           ),
+          fetchPolicy: graphql.FetchPolicy.noCache,
         ),
-        fetchPolicy: graphql.FetchPolicy.noCache,
-      ),
-    );
-    if (result.hasException) {
-      throw TeamException(_formatException(result.exception));
+      );
+      print('🔵 [TeamService] GraphQL mutation completed');
+      
+      if (result.hasException) {
+        print('🔴 [TeamService] GraphQL exception: ${result.exception}');
+        throw TeamException(_formatException(result.exception));
+      }
+      
+      final created = result.parsedData?.createTeam;
+      if (created == null) {
+        print('🔴 [TeamService] Team creation returned empty payload');
+        throw TeamException('Team creation returned empty payload');
+      }
+      
+      print('🟢 [TeamService] Team created successfully: ${created.id}');
+      return Team.fromCreateMutation(created);
+    } catch (e) {
+      print('🔴 [TeamService] Error in createTeam: $e');
+      rethrow;
     }
-    final created = result.parsedData?.createTeam;
-    if (created == null) {
-      throw TeamException('Team creation returned empty payload');
-    }
-    return Team.fromCreateMutation(created);
   }
 
   Future<void> joinTeam({required String joinCode}) async {
@@ -71,15 +100,22 @@ class TeamService {
   }
 
   String _formatException(graphql.OperationException? exception) {
-    if (exception == null) return 'Unknown error';
+    if (exception == null) return 'Unknown error occurred';
     if (exception.graphqlErrors.isNotEmpty) {
       return exception.graphqlErrors.first.message;
     }
     if (exception.linkException != null) {
-      return exception.linkException!.originalException?.toString() ??
-          exception.linkException.toString();
+      final linkEx = exception.linkException;
+      if (linkEx.toString().contains('TimeoutException')) {
+        return 'Connection timeout. Please check your internet and try again.';
+      }
+      if (linkEx.toString().contains('SocketException')) {
+        return 'Cannot connect to server. Please check your connection.';
+      }
+      return linkEx?.originalException?.toString() ??
+          'Network error occurred';
     }
-    return 'Unknown error';
+    return 'Unknown error occurred';
   }
 }
 

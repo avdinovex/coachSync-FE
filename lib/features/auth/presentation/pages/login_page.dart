@@ -44,7 +44,14 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       setState(() {
-        _error = e.toString().replaceFirst('AuthException: ', '');
+        // Clean up error messages for better UX
+        String errorMsg = e.toString().replaceFirst('AuthException: ', '');
+        if (errorMsg.contains('TimeoutException') || errorMsg.contains('No stream event')) {
+          errorMsg = 'Connection timeout. Please check your network.';
+        } else if (errorMsg.contains('SocketException') || errorMsg.contains('connection abort')) {
+          errorMsg = 'Cannot connect to server. Is the backend running?';
+        }
+        _error = errorMsg;
       });
     } finally {
       if (mounted) {
@@ -76,7 +83,14 @@ class _LoginPageState extends State<LoginPage> {
       );
     } catch (e) {
       setState(() {
-        _error = e.toString().replaceFirst('AuthException: ', '');
+        // Clean up error messages for better UX
+        String errorMsg = e.toString().replaceFirst('AuthException: ', '');
+        if (errorMsg.contains('TimeoutException') || errorMsg.contains('No stream event')) {
+          errorMsg = 'Connection timeout. Please check your network.';
+        } else if (errorMsg.contains('SocketException') || errorMsg.contains('connection abort')) {
+          errorMsg = 'Cannot connect to server. Is the backend running?';
+        }
+        _error = errorMsg;
       });
     } finally {
       if (mounted)

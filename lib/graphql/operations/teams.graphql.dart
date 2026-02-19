@@ -768,7 +768,9 @@ class Query$GetMyTeams$myTeams$members {
     return Query$GetMyTeams$myTeams$members(
       id: (l$id as String),
       userId: (l$userId as String),
-      role: fromJson$Enum$MemberRole((l$role as String)),
+      role: (l$role as List<dynamic>)
+          .map((e) => fromJson$Enum$MemberRole((e as String)))
+          .toList(),
       user: l$user == null
           ? null
           : Query$GetMyTeams$myTeams$members$user.fromJson(
@@ -782,7 +784,7 @@ class Query$GetMyTeams$myTeams$members {
 
   final String userId;
 
-  final Enum$MemberRole role;
+  final List<Enum$MemberRole> role;
 
   final Query$GetMyTeams$myTeams$members$user? user;
 
@@ -795,7 +797,7 @@ class Query$GetMyTeams$myTeams$members {
     final l$userId = userId;
     _resultData['userId'] = l$userId;
     final l$role = role;
-    _resultData['role'] = toJson$Enum$MemberRole(l$role);
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$user = user;
     _resultData['user'] = l$user?.toJson();
     final l$$__typename = $__typename;
@@ -810,7 +812,13 @@ class Query$GetMyTeams$myTeams$members {
     final l$role = role;
     final l$user = user;
     final l$$__typename = $__typename;
-    return Object.hashAll([l$id, l$userId, l$role, l$user, l$$__typename]);
+    return Object.hashAll([
+      l$id,
+      l$userId,
+      Object.hashAll(l$role.map((v) => v)),
+      l$user,
+      l$$__typename,
+    ]);
   }
 
   @override
@@ -834,8 +842,15 @@ class Query$GetMyTeams$myTeams$members {
     }
     final l$role = role;
     final lOther$role = other.role;
-    if (l$role != lOther$role) {
+    if (l$role.length != lOther$role.length) {
       return false;
+    }
+    for (int i = 0; i < l$role.length; i++) {
+      final l$role$entry = l$role[i];
+      final lOther$role$entry = lOther$role[i];
+      if (l$role$entry != lOther$role$entry) {
+        return false;
+      }
     }
     final l$user = user;
     final lOther$user = other.user;
@@ -869,7 +884,7 @@ abstract class CopyWith$Query$GetMyTeams$myTeams$members<TRes> {
   TRes call({
     String? id,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     Query$GetMyTeams$myTeams$members$user? user,
     String? $__typename,
   });
@@ -900,7 +915,7 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams$members<TRes>
           : (userId as String),
       role: role == _undefined || role == null
           ? _instance.role
-          : (role as Enum$MemberRole),
+          : (role as List<Enum$MemberRole>),
       user: user == _undefined
           ? _instance.user
           : (user as Query$GetMyTeams$myTeams$members$user?),
@@ -930,7 +945,7 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams$members<TRes>
   call({
     String? id,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     Query$GetMyTeams$myTeams$members$user? user,
     String? $__typename,
   }) => _res;
@@ -1999,7 +2014,9 @@ class Mutation$CreateTeam$createTeam$members {
     return Mutation$CreateTeam$createTeam$members(
       id: (l$id as String),
       userId: (l$userId as String),
-      role: fromJson$Enum$MemberRole((l$role as String)),
+      role: (l$role as List<dynamic>)
+          .map((e) => fromJson$Enum$MemberRole((e as String)))
+          .toList(),
       $__typename: (l$$__typename as String),
     );
   }
@@ -2008,7 +2025,7 @@ class Mutation$CreateTeam$createTeam$members {
 
   final String userId;
 
-  final Enum$MemberRole role;
+  final List<Enum$MemberRole> role;
 
   final String $__typename;
 
@@ -2019,7 +2036,7 @@ class Mutation$CreateTeam$createTeam$members {
     final l$userId = userId;
     _resultData['userId'] = l$userId;
     final l$role = role;
-    _resultData['role'] = toJson$Enum$MemberRole(l$role);
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$$__typename = $__typename;
     _resultData['__typename'] = l$$__typename;
     return _resultData;
@@ -2031,7 +2048,12 @@ class Mutation$CreateTeam$createTeam$members {
     final l$userId = userId;
     final l$role = role;
     final l$$__typename = $__typename;
-    return Object.hashAll([l$id, l$userId, l$role, l$$__typename]);
+    return Object.hashAll([
+      l$id,
+      l$userId,
+      Object.hashAll(l$role.map((v) => v)),
+      l$$__typename,
+    ]);
   }
 
   @override
@@ -2055,8 +2077,15 @@ class Mutation$CreateTeam$createTeam$members {
     }
     final l$role = role;
     final lOther$role = other.role;
-    if (l$role != lOther$role) {
+    if (l$role.length != lOther$role.length) {
       return false;
+    }
+    for (int i = 0; i < l$role.length; i++) {
+      final l$role$entry = l$role[i];
+      final lOther$role$entry = lOther$role[i];
+      if (l$role$entry != lOther$role$entry) {
+        return false;
+      }
     }
     final l$$__typename = $__typename;
     final lOther$$__typename = other.$__typename;
@@ -2088,7 +2117,7 @@ abstract class CopyWith$Mutation$CreateTeam$createTeam$members<TRes> {
   TRes call({
     String? id,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     String? $__typename,
   });
 }
@@ -2119,7 +2148,7 @@ class _CopyWithImpl$Mutation$CreateTeam$createTeam$members<TRes>
           : (userId as String),
       role: role == _undefined || role == null
           ? _instance.role
-          : (role as Enum$MemberRole),
+          : (role as List<Enum$MemberRole>),
       $__typename: $__typename == _undefined || $__typename == null
           ? _instance.$__typename
           : ($__typename as String),
@@ -2136,7 +2165,7 @@ class _CopyWithStubImpl$Mutation$CreateTeam$createTeam$members<TRes>
   call({
     String? id,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     String? $__typename,
   }) => _res;
 }
@@ -2673,7 +2702,9 @@ class Mutation$AddTeamMember$addTeamMember {
       id: (l$id as String),
       teamId: (l$teamId as String),
       userId: (l$userId as String),
-      role: fromJson$Enum$MemberRole((l$role as String)),
+      role: (l$role as List<dynamic>)
+          .map((e) => fromJson$Enum$MemberRole((e as String)))
+          .toList(),
       joinedAt: DateTime.parse((l$joinedAt as String)),
       $__typename: (l$$__typename as String),
     );
@@ -2685,7 +2716,7 @@ class Mutation$AddTeamMember$addTeamMember {
 
   final String userId;
 
-  final Enum$MemberRole role;
+  final List<Enum$MemberRole> role;
 
   final DateTime joinedAt;
 
@@ -2700,7 +2731,7 @@ class Mutation$AddTeamMember$addTeamMember {
     final l$userId = userId;
     _resultData['userId'] = l$userId;
     final l$role = role;
-    _resultData['role'] = toJson$Enum$MemberRole(l$role);
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$joinedAt = joinedAt;
     _resultData['joinedAt'] = l$joinedAt.toIso8601String();
     final l$$__typename = $__typename;
@@ -2720,7 +2751,7 @@ class Mutation$AddTeamMember$addTeamMember {
       l$id,
       l$teamId,
       l$userId,
-      l$role,
+      Object.hashAll(l$role.map((v) => v)),
       l$joinedAt,
       l$$__typename,
     ]);
@@ -2752,8 +2783,15 @@ class Mutation$AddTeamMember$addTeamMember {
     }
     final l$role = role;
     final lOther$role = other.role;
-    if (l$role != lOther$role) {
+    if (l$role.length != lOther$role.length) {
       return false;
+    }
+    for (int i = 0; i < l$role.length; i++) {
+      final l$role$entry = l$role[i];
+      final lOther$role$entry = lOther$role[i];
+      if (l$role$entry != lOther$role$entry) {
+        return false;
+      }
     }
     final l$joinedAt = joinedAt;
     final lOther$joinedAt = other.joinedAt;
@@ -2790,7 +2828,7 @@ abstract class CopyWith$Mutation$AddTeamMember$addTeamMember<TRes> {
     String? id,
     String? teamId,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     DateTime? joinedAt,
     String? $__typename,
   });
@@ -2827,7 +2865,7 @@ class _CopyWithImpl$Mutation$AddTeamMember$addTeamMember<TRes>
           : (userId as String),
       role: role == _undefined || role == null
           ? _instance.role
-          : (role as Enum$MemberRole),
+          : (role as List<Enum$MemberRole>),
       joinedAt: joinedAt == _undefined || joinedAt == null
           ? _instance.joinedAt
           : (joinedAt as DateTime),
@@ -2848,7 +2886,7 @@ class _CopyWithStubImpl$Mutation$AddTeamMember$addTeamMember<TRes>
     String? id,
     String? teamId,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     DateTime? joinedAt,
     String? $__typename,
   }) => _res;
@@ -3367,7 +3405,9 @@ class Mutation$JoinTeam$joinTeam {
       id: (l$id as String),
       teamId: (l$teamId as String),
       userId: (l$userId as String),
-      role: fromJson$Enum$MemberRole((l$role as String)),
+      role: (l$role as List<dynamic>)
+          .map((e) => fromJson$Enum$MemberRole((e as String)))
+          .toList(),
       joinedAt: DateTime.parse((l$joinedAt as String)),
       $__typename: (l$$__typename as String),
     );
@@ -3379,7 +3419,7 @@ class Mutation$JoinTeam$joinTeam {
 
   final String userId;
 
-  final Enum$MemberRole role;
+  final List<Enum$MemberRole> role;
 
   final DateTime joinedAt;
 
@@ -3394,7 +3434,7 @@ class Mutation$JoinTeam$joinTeam {
     final l$userId = userId;
     _resultData['userId'] = l$userId;
     final l$role = role;
-    _resultData['role'] = toJson$Enum$MemberRole(l$role);
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$joinedAt = joinedAt;
     _resultData['joinedAt'] = l$joinedAt.toIso8601String();
     final l$$__typename = $__typename;
@@ -3414,7 +3454,7 @@ class Mutation$JoinTeam$joinTeam {
       l$id,
       l$teamId,
       l$userId,
-      l$role,
+      Object.hashAll(l$role.map((v) => v)),
       l$joinedAt,
       l$$__typename,
     ]);
@@ -3446,8 +3486,15 @@ class Mutation$JoinTeam$joinTeam {
     }
     final l$role = role;
     final lOther$role = other.role;
-    if (l$role != lOther$role) {
+    if (l$role.length != lOther$role.length) {
       return false;
+    }
+    for (int i = 0; i < l$role.length; i++) {
+      final l$role$entry = l$role[i];
+      final lOther$role$entry = lOther$role[i];
+      if (l$role$entry != lOther$role$entry) {
+        return false;
+      }
     }
     final l$joinedAt = joinedAt;
     final lOther$joinedAt = other.joinedAt;
@@ -3482,7 +3529,7 @@ abstract class CopyWith$Mutation$JoinTeam$joinTeam<TRes> {
     String? id,
     String? teamId,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     DateTime? joinedAt,
     String? $__typename,
   });
@@ -3516,7 +3563,7 @@ class _CopyWithImpl$Mutation$JoinTeam$joinTeam<TRes>
           : (userId as String),
       role: role == _undefined || role == null
           ? _instance.role
-          : (role as Enum$MemberRole),
+          : (role as List<Enum$MemberRole>),
       joinedAt: joinedAt == _undefined || joinedAt == null
           ? _instance.joinedAt
           : (joinedAt as DateTime),
@@ -3537,7 +3584,7 @@ class _CopyWithStubImpl$Mutation$JoinTeam$joinTeam<TRes>
     String? id,
     String? teamId,
     String? userId,
-    Enum$MemberRole? role,
+    List<Enum$MemberRole>? role,
     DateTime? joinedAt,
     String? $__typename,
   }) => _res;

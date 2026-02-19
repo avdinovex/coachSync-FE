@@ -3,7 +3,7 @@
 # ------------------------------------------------------
 
 input AddTeamMemberInput {
-  role: MemberRole!
+  role: [MemberRole!]!
   teamId: String!
   userId: String!
 }
@@ -232,7 +232,7 @@ type Team {
 type TeamMember {
   id: String!
   joinedAt: DateTime!
-  role: MemberRole!
+  role: [MemberRole!]!
   teamId: String!
   user: User
   userId: String!
@@ -269,7 +269,7 @@ input UpdateTeamInput {
   description: String
   id: String!
   name: String
-  newRole: String
+  newRole: [MemberRole!]
   sport: String
   targetUserId: String
 }

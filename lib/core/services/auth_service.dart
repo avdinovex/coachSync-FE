@@ -148,7 +148,20 @@ class AuthService {
       return exception.graphqlErrors.first.message;
     }
     if (exception.linkException != null) {
-      return exception.linkException!.originalException?.toString() ?? exception.linkException.toString();
+      final linkEx = exception.linkException;
+      // Handle timeout exceptions
+      if (linkEx.toString().contains('TimeoutException') || 
+          linkEx.toString().contains('timeout') ||
+          linkEx.toString().contains('No stream event')) {
+        return 'Connection timeout. Please check your network and try again.';
+      }
+      // Handle connection errors
+      if (linkEx.toString().contains('SocketException') ||
+          linkEx.toString().contains('connection') ||
+          linkEx.toString().contains('abort')) {
+        return 'Cannot connect to server. Please check if the server is running.';
+      }
+      return 'Network error. Please try again.';
     }
     return 'Unknown error';
   }

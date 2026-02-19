@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/network_diagnostics.dart';
 import '../../data/team_service.dart';
 
 class CreateTeamPage extends StatefulWidget {
@@ -58,9 +60,15 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
 
       if (!mounted) return;
       Navigator.pop(context, true);
-    } catch (e) {
+    } on TimeoutException catch (_) {
+      if (!mounted) return;
       setState(() {
-        _error = e.toString().replaceFirst('TeamException: ', '');
+        _error = NetworkDiagnostics.getErrorMessage('TimeoutException');
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = NetworkDiagnostics.getErrorMessage(e);
       });
     } finally {
       if (mounted) {
