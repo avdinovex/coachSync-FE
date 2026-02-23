@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../data/team_service.dart';
 import '../../domain/models/team.dart';
 
@@ -22,6 +23,66 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   bool _loadingTeam = true;
   bool _loadingMembers = true;
   String? _error;
+  bool _infoExpanded = true;
+
+  // ── Derived helpers ──
+
+  /// Members sorted: leaders → coaches → parents → players, current user last.
+  List<TeamMember> get _sortedMembers {
+    final currentUserId = AuthService.currentUser?.id;
+    int priority(TeamMember m) {
+      if (m.roles.contains(MemberRole.leader)) return 0;
+      if (m.roles.contains(MemberRole.coach)) return 1;
+      if (m.roles.contains(MemberRole.parent)) return 2;
+      return 3;
+    }
+
+    final me = currentUserId != null
+        ? _members.where((m) => m.userId == currentUserId).toList()
+        : <TeamMember>[];
+    final others = currentUserId != null
+        ? _members.where((m) => m.userId != currentUserId).toList()
+        : List<TeamMember>.of(_members);
+    others.sort((a, b) => priority(a).compareTo(priority(b)));
+    return [...others, ...me];
+  }
+
+  /// True when the current user is a leader or coach in this team.
+  bool get _canAddMembers {
+    final currentUserId = AuthService.currentUser?.id;
+    if (currentUserId == null) return false;
+    final myMember = _members.cast<TeamMember?>().firstWhere(
+          (m) => m!.userId == currentUserId,
+          orElse: () => null,
+        );
+    if (myMember == null) return false;
+    return myMember.roles
+        .any((r) => r == MemberRole.leader || r == MemberRole.coach);
+  }
+
+  /// True when the current user is a leader in this team.
+  bool get _currentUserIsLeader {
+    final currentUserId = AuthService.currentUser?.id;
+    if (currentUserId == null) return false;
+    final myMember = _members.cast<TeamMember?>().firstWhere(
+          (m) => m!.userId == currentUserId,
+          orElse: () => null,
+        );
+    return myMember?.roles.contains(MemberRole.leader) == true;
+  }
+
+  /// True when the current user is a coach (but not a leader) in this team.
+  bool get _currentUserIsCoach {
+    final currentUserId = AuthService.currentUser?.id;
+    if (currentUserId == null) return false;
+    final myMember = _members.cast<TeamMember?>().firstWhere(
+          (m) => m!.userId == currentUserId,
+          orElse: () => null,
+        );
+    if (myMember == null) return false;
+    return myMember.roles.contains(MemberRole.coach) &&
+        !myMember.roles.contains(MemberRole.leader);
+  }
 
   @override
   void initState() {
@@ -196,7 +257,11 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   // ─────────────────────── Add Member ───────────────────────
 
   void _showAddMemberSheet() {
-    final userIdCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    // Leaders can assign any role; coaches can only assign player or coach
+    final availableRoles = _currentUserIsLeader
+        ? MemberRole.values
+        : [MemberRole.player, MemberRole.coach];
     MemberRole selectedRole = MemberRole.player;
     bool saving = false;
 
@@ -229,14 +294,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _inputField(userIdCtrl, 'User ID', Icons.person),
+                _inputField(emailCtrl, 'Email Address', Icons.email,
+                    keyboardType: TextInputType.emailAddress),
                 const SizedBox(height: 16),
                 const Text('Role',
                     style: TextStyle(color: Colors.white70, fontSize: 13)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
-                  children: MemberRole.values.map((role) {
+                  children: availableRoles.map((role) {
                     final selected = selectedRole == role;
                     return ChoiceChip(
                       label: Text(
@@ -263,27 +329,29 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                   onPressed: saving
                       ? null
                       : () async {
-                          final uid = userIdCtrl.text.trim();
-                          if (uid.isEmpty) {
-                            _showSnack('User ID is required', error: true);
+                          final email = emailCtrl.text.trim();
+                          if (email.isEmpty) {
+                            _showSnack('Email is required', error: true);
                             return;
                           }
                           setSheet(() => saving = true);
                           try {
-                            final member = await _teamService.addMember(
+                            await _teamService.addMember(
                               teamId: widget.teamId,
-                              userId: uid,
+                              email: email,
                               roles: [selectedRole],
                             );
                             if (!mounted) return;
                             Navigator.pop(ctx);
-                            setState(() => _members.add(member));
+                            await _loadMembers();
                             _showSnack('Member added successfully');
                           } catch (e) {
-                            setSheet(() => saving = false);
-                            _showSnack(
-                                e.toString().replaceFirst('TeamException: ', ''),
-                                error: true);
+                            if (mounted) setSheet(() => saving = false);
+                            final msg = e
+                                .toString()
+                                .replaceFirst('TeamException: ', '');
+                            debugPrint('❌ addMember error: $e');
+                            if (mounted) _showSnack(msg, error: true);
                           }
                         },
                   child: saving
@@ -292,6 +360,167 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                           width: 18,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Text('Add Member',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  // ─────────────────────── Change Member Roles ───────────────────────
+
+  void _showRoleChangeSheet(TeamMember target) {
+    // Roles this manager can assign
+    final assignableRoles = _currentUserIsLeader
+        ? MemberRole.values.toList()
+        : [MemberRole.player, MemberRole.coach];
+    List<MemberRole> selectedRoles = List.of(target.roles);
+    bool saving = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(builder: (ctx, setSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 32,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey[800],
+                      child: Text(
+                        target.displayName.isNotEmpty
+                            ? target.displayName[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            target.displayName,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          if (target.email != null)
+                            Text(target.email!,
+                                style: TextStyle(
+                                    color: Colors.grey[500], fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Assign Roles',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: assignableRoles.map((role) {
+                    final selected = selectedRoles.contains(role);
+                    return FilterChip(
+                      label: Text(
+                        role.name[0].toUpperCase() + role.name.substring(1),
+                        style: TextStyle(
+                            color: selected ? Colors.black : Colors.white70,
+                            fontSize: 13),
+                      ),
+                      selected: selected,
+                      onSelected: (val) => setSheet(() {
+                        if (val) {
+                          selectedRoles.add(role);
+                        } else {
+                          selectedRoles.remove(role);
+                          if (selectedRoles.isEmpty) {
+                            selectedRoles.add(MemberRole.player);
+                          }
+                        }
+                      }),
+                      selectedColor: Colors.white,
+                      backgroundColor: Colors.grey[800],
+                      checkmarkColor: Colors.black,
+                      side: BorderSide.none,
+                    );
+                  }).toList(),
+                ),
+                if (!_currentUserIsLeader)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'As a coach, you can only assign player or coach roles.',
+                      style:
+                          TextStyle(color: Colors.grey[600], fontSize: 11),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: saving
+                      ? null
+                      : () async {
+                          if (selectedRoles.isEmpty) {
+                            _showSnack('Select at least one role', error: true);
+                            return;
+                          }
+                          setSheet(() => saving = true);
+                          try {
+                            await _teamService.updateMemberRoles(
+                              teamId: widget.teamId,
+                              userId: target.userId,
+                              roles: selectedRoles,
+                            );
+                            if (!mounted) return;
+                            Navigator.pop(ctx);
+                            await _loadMembers();
+                            _showSnack('Roles updated successfully');
+                          } catch (e) {
+                            if (mounted) setSheet(() => saving = false);
+                            final msg = e
+                                .toString()
+                                .replaceFirst('TeamException: ', '');
+                            debugPrint('❌ updateMemberRoles error: $e');
+                            if (mounted) _showSnack(msg, error: true);
+                          }
+                        },
+                  child: saving
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Save Roles',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
@@ -313,11 +542,17 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
     );
   }
 
-  Widget _inputField(TextEditingController ctrl, String label, IconData icon,
-      {int maxLines = 1}) {
+  Widget _inputField(
+    TextEditingController ctrl,
+    String label,
+    IconData icon, {
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
     return TextField(
       controller: ctrl,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
@@ -382,14 +617,16 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        icon: const Icon(Icons.person_add_alt_1),
-        label: const Text('Add Member',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        onPressed: _showAddMemberSheet,
-      ),
+      floatingActionButton: _canAddMembers
+          ? FloatingActionButton.extended(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              icon: const Icon(Icons.person_add_alt_1),
+              label: const Text('Add Member',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              onPressed: _showAddMemberSheet,
+            )
+          : null,
       body: _loadingTeam
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -399,7 +636,13 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                     children: [
-                      _TeamInfoCard(team: _team!),
+                      _TeamInfoCard(
+                        team: _team!,
+                        memberCount: _members.length,
+                        isExpanded: _infoExpanded,
+                        onToggle: () =>
+                            setState(() => _infoExpanded = !_infoExpanded),
+                      ),
                       const SizedBox(height: 24),
                       _MembersSectionHeader(
                         count: _members.length,
@@ -415,8 +658,22 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                       else if (_members.isEmpty)
                         _EmptyMembers()
                       else
-                        ..._members
-                            .map((m) => _MemberTile(member: m))
+                        ..._sortedMembers
+                            .map((m) {
+                              final isCurrentUser =
+                                  m.userId == AuthService.currentUser?.id;
+                              // Can manage if current user is leader or coach,
+                              // but not managing themselves
+                              final canManage =
+                                  !isCurrentUser && _canAddMembers;
+                              return _MemberTile(
+                                member: m,
+                                isCurrentUser: isCurrentUser,
+                                onTap: canManage
+                                    ? () => _showRoleChangeSheet(m)
+                                    : null,
+                              );
+                            })
                             .toList(),
                     ],
                   ),
@@ -428,13 +685,20 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 // ─────────────────────────── Sub-widgets ───────────────────────────
 
 class _TeamInfoCard extends StatelessWidget {
-  const _TeamInfoCard({required this.team});
+  const _TeamInfoCard({
+    required this.team,
+    required this.memberCount,
+    required this.isExpanded,
+    required this.onToggle,
+  });
   final Team team;
+  final int memberCount;
+  final bool isExpanded;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey[900],
         borderRadius: BorderRadius.circular(16),
@@ -443,50 +707,79 @@ class _TeamInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(Icons.sports, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      team.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+          // ── Header (always visible, tap to collapse) ──
+          InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.vertical(
+              top: const Radius.circular(16),
+              bottom: isExpanded ? Radius.zero : const Radius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        team.sport,
-                        style: TextStyle(
-                            color: Colors.grey[300], fontSize: 12),
-                      ),
+                    child:
+                        const Icon(Icons.sports, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          team.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            team.sport,
+                            style:
+                                TextStyle(color: Colors.grey[300], fontSize: 12),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  AnimatedRotation(
+                    turns: isExpanded ? 0 : 0.5,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(Icons.expand_less,
+                        color: Colors.grey[500], size: 22),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+          // ── Collapsible body ──
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 250),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            firstChild: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
           if (team.description?.isNotEmpty == true) ...[
             const SizedBox(height: 14),
             Text(
@@ -507,13 +800,18 @@ class _TeamInfoCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.people_outline,
             label: 'Members',
-            value: '${team.memberCount}',
+            value: '$memberCount',
           ),
           const SizedBox(height: 8),
           _InfoRow(
             icon: Icons.calendar_today,
             label: 'Created',
             value: _formatDate(team.createdAt),
+          ),
+                ],
+              ),
+            ),
+            secondChild: const SizedBox.shrink(),
           ),
         ],
       ),
@@ -618,8 +916,14 @@ class _MembersSectionHeader extends StatelessWidget {
 }
 
 class _MemberTile extends StatelessWidget {
-  const _MemberTile({required this.member});
+  const _MemberTile({
+    required this.member,
+    this.isCurrentUser = false,
+    this.onTap,
+  });
   final TeamMember member;
+  final bool isCurrentUser;
+  final VoidCallback? onTap;
 
   static const _roleColors = {
     MemberRole.coach: Colors.amber,
@@ -631,13 +935,21 @@ class _MemberTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = _initials(member.displayName);
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: isCurrentUser ? Colors.grey[850] : Colors.grey[900],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[800]!),
+        border: Border.all(
+          color: isCurrentUser
+              ? Colors.white.withOpacity(0.15)
+              : onTap != null
+                  ? Colors.white.withOpacity(0.12)
+                  : Colors.grey[800]!,
+        ),
       ),
       child: Row(
         children: [
@@ -679,27 +991,38 @@ class _MemberTile extends StatelessWidget {
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: member.roles.map((role) {
-              final color = _roleColors[role] ?? Colors.grey;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: color.withOpacity(0.5)),
+            children: [
+              ...member.roles.map((role) {
+                final color = _roleColors[role] ?? Colors.grey;
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: color.withOpacity(0.5)),
+                  ),
+                  child: Text(
+                    role.name[0].toUpperCase() + role.name.substring(1),
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
+                  ),
+                );
+              }),
+              if (onTap != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Icon(Icons.edit,
+                      size: 13, color: Colors.grey[600]),
                 ),
-                child: Text(
-                  role.name[0].toUpperCase() + role.name.substring(1),
-                  style: TextStyle(
-                      color: color, fontSize: 11, fontWeight: FontWeight.w600),
-                ),
-              );
-            }).toList(),
+            ],
           ),
         ],
       ),
+    ),
     );
   }
 

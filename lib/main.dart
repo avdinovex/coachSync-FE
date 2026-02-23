@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'app/theme.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

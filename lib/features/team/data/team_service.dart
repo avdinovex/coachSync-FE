@@ -184,22 +184,52 @@ class TeamService {
 
   Future<TeamMember> addMember({
     required String teamId,
+    required String email,
+    required List<MemberRole> roles,
+  }) async {
+    final url = '$_baseUrl/teams/$teamId/members';
+    final body = {
+      'email': email,
+      'role': roles.map((r) => r.name).toList(),
+    };
+    print('🔵 [TeamService] addMember: teamId=$teamId email=$email');
+    print('🔵 [TeamService] addMember: POST $url body=${jsonEncode(body)}');
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: await _authHeaders(),
+        body: jsonEncode(body),
+      );
+      print('🔵 [TeamService] addMember: status=${response.statusCode} body=${response.body}');
+      _throwIfError(response, 'addMember');
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      print('🟢 [TeamService] addMember success');
+      return TeamMember.fromJson(json);
+    } catch (e, st) {
+      print('🔴 [TeamService] addMember error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ─────────── PATCH /teams/{teamId}/members/{userId}/roles ────────────
+
+  Future<TeamMember> updateMemberRoles({
+    required String teamId,
     required String userId,
     required List<MemberRole> roles,
   }) async {
-    print('🔵 [TeamService] addMember: teamId=$teamId userId=$userId');
+    print('🔵 [TeamService] updateMemberRoles: teamId=$teamId userId=$userId roles=$roles');
     final body = {
-      'userId': userId,
       'role': roles.map((r) => r.name).toList(),
     };
-    final response = await http.post(
-      Uri.parse('$_baseUrl/teams/$teamId/members'),
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/teams/$teamId/members/$userId/roles'),
       headers: await _authHeaders(),
       body: jsonEncode(body),
     );
-    _throwIfError(response, 'addMember');
+    _throwIfError(response, 'updateMemberRoles');
     final json = jsonDecode(response.body) as Map<String, dynamic>;
-    print('🟢 [TeamService] addMember success');
+    print('🟢 [TeamService] updateMemberRoles success');
     return TeamMember.fromJson(json);
   }
 
