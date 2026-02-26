@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../features/schedule/data/event_service.dart';
 import '../../../../features/schedule/domain/models/event.dart';
 import '../../../../features/team/data/team_service.dart';
@@ -66,12 +69,49 @@ class _EventsPageState extends State<EventsPage>
   bool _eventsLoading = false;
   String? _error;
 
+  /// Current user's ID for permission checks.
+  String? _currentUserId;
+
+  /// Current user's roles in the selected team.
+  List<MemberRole> _myTeamRoles = [];
+
+  /// All members of the selected team (for full attendance view).
+  List<TeamMember> _teamMembers = [];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _currentUserId = AuthService.currentUser?.id;
+    print('🔵 [EventsPage] currentUserId from AuthService: $_currentUserId');
+    if (_currentUserId == null) {
+      _resolveUserIdFromToken();
+    }
     _loadTeams();
+  }
+
+  /// Fallback: decode the user ID from the stored JWT token.
+  Future<void> _resolveUserIdFromToken() async {
+    try {
+      final token = await AuthService.getStoredToken();
+      if (token != null) {
+        final parts = token.split('.');
+        if (parts.length == 3) {
+          final payload = utf8.decode(
+            base64Url.decode(base64Url.normalize(parts[1])),
+          );
+          final map = jsonDecode(payload) as Map<String, dynamic>;
+          final sub = map['sub'] as String?;
+          print('🔵 [EventsPage] resolved userId from JWT: $sub');
+          if (sub != null && mounted) {
+            setState(() => _currentUserId = sub);
+          }
+        }
+      }
+    } catch (e) {
+      print('🔴 [EventsPage] failed to decode JWT: $e');
+    }
   }
 
   @override
@@ -99,6 +139,7 @@ class _EventsPageState extends State<EventsPage>
           _selectedTeamId = teams.first.id;
         }
       });
+      await _loadTeamMembers();
       await _loadEvents();
     } catch (e) {
       setState(() {
@@ -135,6 +176,26 @@ class _EventsPageState extends State<EventsPage>
   }
 
   // ── Create event ─────────────────────────────────────────────────────────
+
+  /// Whether the current user is a leader or coach in the selected team.
+  bool get _isLeaderOrCoach =>
+      _myTeamRoles.contains(MemberRole.leader) ||
+      _myTeamRoles.contains(MemberRole.coach);
+
+  /// Load members of the selected team and resolve current user's roles.
+  Future<void> _loadTeamMembers() async {
+    if (_selectedTeamId == null) return;
+    try {
+      final members = await _teamService.getTeamMembers(_selectedTeamId!);
+      final me = members.where((m) => m.userId == _currentUserId).toList();
+      setState(() {
+        _teamMembers = members;
+        _myTeamRoles = me.isNotEmpty ? me.first.roles : [];
+      });
+    } catch (_) {
+      // Silently fail; permissions will default to non-privileged.
+    }
+  }
 
   Future<void> _showCreateEventSheet() async {
     if (_selectedTeamId == null) {
@@ -198,6 +259,12 @@ class _EventsPageState extends State<EventsPage>
   // ── Event detail ──────────────────────────────────────────────────────────
 
   void _openEventDetail(Event event) {
+    final isCreator = event.createdBy == _currentUserId;
+    final canDelete = isCreator || _isLeaderOrCoach;
+    final canEdit = _isLeaderOrCoach;
+    // Creator, leader, and coach see full member list for the event
+    final showFullAttendance = isCreator || _isLeaderOrCoach;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -205,8 +272,12 @@ class _EventsPageState extends State<EventsPage>
       builder: (_) => _EventDetailSheet(
         event: event,
         eventService: _eventService,
-        onDelete: () => _deleteEvent(event),
+        onDelete: canDelete ? () => _deleteEvent(event) : null,
         onRsvpChanged: _loadEvents,
+        canEdit: canEdit,
+        showFullAttendance: showFullAttendance,
+        teamMembers: _teamMembers,
+        currentUserId: _currentUserId,
       ),
     );
   }
@@ -287,6 +358,7 @@ class _EventsPageState extends State<EventsPage>
                     onTap: () {
                       if (!selected) {
                         setState(() => _selectedTeamId = t.id);
+                        _loadTeamMembers();
                         _loadEvents();
                       }
                     },
@@ -652,12 +724,21 @@ class _EventDetailSheet extends StatefulWidget {
     required this.eventService,
     required this.onDelete,
     required this.onRsvpChanged,
+    this.canEdit = false,
+    this.showFullAttendance = false,
+    this.teamMembers = const [],
+    this.currentUserId,
   });
 
   final Event event;
   final EventService eventService;
-  final VoidCallback onDelete;
+  /// Null when the current user is NOT allowed to delete.
+  final VoidCallback? onDelete;
   final VoidCallback onRsvpChanged;
+  final bool canEdit;
+  final bool showFullAttendance;
+  final List<TeamMember> teamMembers;
+  final String? currentUserId;
 
   @override
   State<_EventDetailSheet> createState() => _EventDetailSheetState();
@@ -682,9 +763,16 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
       final rsvps =
           await widget.eventService.getEventRsvps(widget.event.id);
       if (!mounted) return;
+      // Auto-detect the current user's RSVP status
+      final myRsvp = rsvps
+          .where((r) => r.userId == widget.currentUserId)
+          .toList();
       setState(() {
         _rsvps = rsvps;
         _rsvpsLoading = false;
+        if (myRsvp.isNotEmpty) {
+          _myRsvp = myRsvp.first.status;
+        }
       });
     } catch (_) {
       if (mounted) setState(() => _rsvpsLoading = false);
@@ -713,6 +801,45 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
     }
   }
 
+  /// Build the full attendance list for privileged users.
+  /// Shows every team member with their RSVP status.
+  /// Members who have not RSVPed are shown as "No Response".
+  List<Widget> _buildFullAttendanceList() {
+    final rsvpMap = <String, EventRsvp>{};
+    for (final r in _rsvps) {
+      rsvpMap[r.userId] = r;
+    }
+
+    // Sort: RSVPed members first (coming > not_coming > tbd), then no-response
+    final sorted = List<TeamMember>.from(widget.teamMembers);
+    sorted.sort((a, b) {
+      final rsvpA = rsvpMap[a.userId];
+      final rsvpB = rsvpMap[b.userId];
+      int priority(EventRsvp? r) {
+        if (r == null) return 4;
+        switch (r.status) {
+          case RsvpStatus.coming:
+            return 1;
+          case RsvpStatus.not_coming:
+            return 2;
+          case RsvpStatus.tbd:
+            return 3;
+        }
+      }
+      return priority(rsvpA).compareTo(priority(rsvpB));
+    });
+
+    return sorted.map((member) {
+      final rsvp = rsvpMap[member.userId];
+      final isMe = member.userId == widget.currentUserId;
+      return _FullAttendanceTile(
+        name: member.displayName,
+        rsvp: rsvp,
+        isMe: isMe,
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final event = widget.event;
@@ -729,7 +856,38 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
         ),
         child: Column(
           children: [
-            _DragHandle(),
+            // Drag handle + close button row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[700],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, color: Colors.white70, size: 18),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
 
             Expanded(
               child: ListView(
@@ -776,12 +934,13 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline,
-                            color: Colors.redAccent),
-                        onPressed: widget.onDelete,
-                        tooltip: 'Delete event',
-                      ),
+                      if (widget.onDelete != null)
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline,
+                              color: Colors.redAccent),
+                          onPressed: widget.onDelete,
+                          tooltip: 'Delete event',
+                        ),
                     ],
                   ),
 
@@ -872,7 +1031,7 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 14)),
-                      if (!_rsvpsLoading && _rsvps.isNotEmpty)
+                      if (!_rsvpsLoading)
                         Row(
                           children: [
                             _MiniCount(
@@ -895,6 +1054,16 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                                         (r) => r.status == RsvpStatus.tbd)
                                     .length,
                                 color: Colors.orange),
+                            if (widget.showFullAttendance &&
+                                widget.teamMembers.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              _MiniCount(
+                                  count: widget.teamMembers
+                                      .where((m) => !_rsvps.any(
+                                          (r) => r.userId == m.userId))
+                                      .length,
+                                  color: Colors.grey),
+                            ],
                           ],
                         ),
                     ],
@@ -909,6 +1078,10 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                             color: Colors.white54, strokeWidth: 2),
                       ),
                     )
+                  else if (widget.showFullAttendance &&
+                      widget.teamMembers.isNotEmpty)
+                    // Privileged view: show ALL team members with RSVP status
+                    ..._buildFullAttendanceList()
                   else if (_rsvps.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -916,7 +1089,10 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                           style: TextStyle(color: Colors.grey[600])),
                     )
                   else
-                    ..._rsvps.map((r) => _RsvpListTile(rsvp: r)),
+                    ..._rsvps.map((r) => _RsvpListTile(
+                        rsvp: r,
+                        isMe: r.userId == widget.currentUserId,
+                    )),
                 ],
               ),
             ),
@@ -1042,8 +1218,9 @@ class _MiniCount extends StatelessWidget {
 }
 
 class _RsvpListTile extends StatelessWidget {
-  const _RsvpListTile({required this.rsvp});
+  const _RsvpListTile({required this.rsvp, this.isMe = false});
   final EventRsvp rsvp;
+  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
@@ -1063,13 +1240,14 @@ class _RsvpListTile extends StatelessWidget {
         icon = Icons.help_outline;
         break;
     }
+    final displayText = isMe ? '${rsvp.displayName} (You)' : rsvp.displayName;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: Colors.grey[800],
+            backgroundColor: isMe ? Colors.white24 : Colors.grey[800],
             child: Text(
               rsvp.displayName.isNotEmpty
                   ? rsvp.displayName[0].toUpperCase()
@@ -1079,13 +1257,85 @@ class _RsvpListTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(rsvp.displayName,
-                style: const TextStyle(color: Colors.white70, fontSize: 13)),
+            child: Text(displayText,
+                style: TextStyle(
+                    color: isMe ? Colors.white : Colors.white70,
+                    fontSize: 13,
+                    fontWeight: isMe ? FontWeight.w600 : FontWeight.normal)),
           ),
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 4),
           Text(rsvp.status.label,
               style: TextStyle(color: color, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Attendance tile for privileged view showing all team members.
+/// If the member has an RSVP it shows their status; otherwise "No Response".
+class _FullAttendanceTile extends StatelessWidget {
+  const _FullAttendanceTile({required this.name, this.rsvp, this.isMe = false});
+  final String name;
+  final EventRsvp? rsvp;
+  final bool isMe;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color;
+    final IconData icon;
+    final String label;
+
+    if (rsvp != null) {
+      switch (rsvp!.status) {
+        case RsvpStatus.coming:
+          color = Colors.green;
+          icon = Icons.check_circle_outline;
+          label = 'Coming';
+          break;
+        case RsvpStatus.not_coming:
+          color = Colors.redAccent;
+          icon = Icons.cancel_outlined;
+          label = 'Not Coming';
+          break;
+        case RsvpStatus.tbd:
+          color = Colors.orange;
+          icon = Icons.help_outline;
+          label = 'TBD';
+          break;
+      }
+    } else {
+      color = Colors.grey;
+      icon = Icons.remove_circle_outline;
+      label = 'No Response';
+    }
+
+    final displayText = isMe ? '$name (You)' : name;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: isMe ? Colors.white24 : Colors.grey[800],
+            child: Text(
+              name.isNotEmpty ? name[0].toUpperCase() : '?',
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(displayText,
+                style: TextStyle(
+                    color: isMe ? Colors.white : Colors.white70,
+                    fontSize: 13,
+                    fontWeight: isMe ? FontWeight.w600 : FontWeight.normal)),
+          ),
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(color: color, fontSize: 12)),
         ],
       ),
     );
