@@ -161,22 +161,8 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
       onRefresh: _loadTeams,
       child: ListView.separated(
         itemCount: _teams.length,
-        itemBuilder: (_, index) => _TeamCard(
-          team: _teams[index],
-          onTap: () async {
-            final result = await Navigator.push<String>(
-              context,
-              MaterialPageRoute(
-                builder: (_) => TeamDetailPage(
-                  teamId: _teams[index].id,
-                  teamName: _teams[index].name,
-                ),
-              ),
-            );
-            if (result == 'deleted') _loadTeams();
-          },
-        ),
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (_, index) => _TeamCard(team: _teams[index]),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
       ),
     );
   }

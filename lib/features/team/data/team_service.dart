@@ -1,10 +1,5 @@
 import 'dart:convert';
 
-import 'package:graphql/client.dart' as graphql;
-import 'package:http/http.dart' as http;
-
-import '../../../core/constants/environment.dart';
-import '../../../core/services/auth_service.dart';
 import '../../../core/services/graphql_client_factory.dart';
 import '../../../graphql/operations/teams.graphql.dart';
 import '../../../graphql/schema.graphql.dart';

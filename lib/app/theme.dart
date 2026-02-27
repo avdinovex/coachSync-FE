@@ -6,7 +6,6 @@ class AppTheme {
       colorScheme: ColorScheme.dark(
         primary: Colors.white,
         secondary: Colors.grey[300]!,
-        background: Colors.black,
         surface: Colors.grey[900]!,
       ),
       scaffoldBackgroundColor: Colors.black,

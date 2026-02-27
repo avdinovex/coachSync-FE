@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app/theme.dart';
-import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/start_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'CoachSync',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark(),
-      home: const LoginPage(),
+      home: const StartPage(),
     );
   }
 }
