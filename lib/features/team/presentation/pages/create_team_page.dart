@@ -141,7 +141,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedSport,
+                  initialValue: _selectedSport,
                   dropdownColor: Colors.grey[900],
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(

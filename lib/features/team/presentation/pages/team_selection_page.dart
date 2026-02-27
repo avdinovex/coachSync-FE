@@ -161,7 +161,7 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
       child: ListView.separated(
         itemCount: _teams.length,
         itemBuilder: (_, index) => _TeamCard(team: _teams[index]),
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
       ),
     );
   }

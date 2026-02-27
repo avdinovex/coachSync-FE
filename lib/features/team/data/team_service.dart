@@ -1,6 +1,5 @@
 import 'package:graphql/client.dart' as graphql;
 
-import '../../../core/services/auth_service.dart';
 import '../../../core/services/graphql_client_factory.dart';
 import '../../../graphql/operations/teams.graphql.dart';
 import '../../../graphql/schema.graphql.dart';
