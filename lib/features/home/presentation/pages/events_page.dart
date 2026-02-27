@@ -51,10 +51,10 @@ class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
 
   @override
-  State<EventsPage> createState() => _EventsPageState();
+  State<EventsPage> createState() => EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage>
+class EventsPageState extends State<EventsPage>
     with SingleTickerProviderStateMixin {
   final _eventService = EventService();
   final _teamService = TeamService();
@@ -253,6 +253,22 @@ class _EventsPageState extends State<EventsPage>
       }
     } catch (e) {
       _showSnack(e.toString(), isError: true);
+    }
+  }
+
+  // ── Open event by ID (called from chat event cards) ────────────────────
+
+  /// Fetches an event by ID and opens its detail sheet.
+  Future<void> openEventById(String eventId) async {
+    try {
+      final event = await _eventService.getEventById(eventId);
+      if (mounted) {
+        _openEventDetail(event);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnack('Could not load event: $e', isError: true);
+      }
     }
   }
 

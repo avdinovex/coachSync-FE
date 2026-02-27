@@ -12,16 +12,30 @@ class HomePage extends StatefulWidget {
   final String email;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   int _refreshKey = 0;
+  
+  /// Key to access EventsPage state for deep-linking to a specific event.
+  final GlobalKey<EventsPageState> _eventsPageKey = GlobalKey<EventsPageState>();
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  /// Navigate to Events tab and open a specific event by ID.
+  void navigateToEvent(String eventId) {
+    setState(() {
+      _selectedIndex = 2;
+    });
+    // Give the EventsPage time to be visible, then open the event
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _eventsPageKey.currentState?.openEventById(eventId);
     });
   }
 
@@ -182,7 +196,7 @@ class _HomePageState extends State<HomePage> {
         isEmbedded: true,
       ),
       const MessagePage(),
-      const EventsPage(),
+      EventsPage(key: _eventsPageKey),
       ProfilePage(email: widget.email),
     ];
 

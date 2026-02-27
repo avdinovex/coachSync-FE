@@ -239,7 +239,7 @@ class TeamService {
     final result = await _client.mutate$JoinTeam(
       Options$Mutation$JoinTeam(
         variables: Variables$Mutation$JoinTeam(
-          joinCode: joinCode,
+          input: Input$JoinTeamInput(joinCode: joinCode),
         ),
         fetchPolicy: graphql.FetchPolicy.noCache,
       ),

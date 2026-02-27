@@ -6,5 +6,7 @@ targets:
           scalars:
             DateTime:
               type: DateTime
+            JSON:
+              type: Map<String, dynamic>
           clients:
             - graphql_flutter

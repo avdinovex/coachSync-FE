@@ -2893,26 +2893,28 @@ class _CopyWithStubImpl$Mutation$AddTeamMember$addTeamMember<TRes>
 }
 
 class Variables$Mutation$JoinTeam {
-  factory Variables$Mutation$JoinTeam({required String joinCode}) =>
-      Variables$Mutation$JoinTeam._({r'joinCode': joinCode});
+  factory Variables$Mutation$JoinTeam({required Input$JoinTeamInput input}) =>
+      Variables$Mutation$JoinTeam._({r'input': input});
 
   Variables$Mutation$JoinTeam._(this._$data);
 
   factory Variables$Mutation$JoinTeam.fromJson(Map<String, dynamic> data) {
     final result$data = <String, dynamic>{};
-    final l$joinCode = data['joinCode'];
-    result$data['joinCode'] = (l$joinCode as String);
+    final l$input = data['input'];
+    result$data['input'] = Input$JoinTeamInput.fromJson(
+      (l$input as Map<String, dynamic>),
+    );
     return Variables$Mutation$JoinTeam._(result$data);
   }
 
   Map<String, dynamic> _$data;
 
-  String get joinCode => (_$data['joinCode'] as String);
+  Input$JoinTeamInput get input => (_$data['input'] as Input$JoinTeamInput);
 
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
-    final l$joinCode = joinCode;
-    result$data['joinCode'] = l$joinCode;
+    final l$input = input;
+    result$data['input'] = l$input.toJson();
     return result$data;
   }
 
@@ -2928,9 +2930,9 @@ class Variables$Mutation$JoinTeam {
         runtimeType != other.runtimeType) {
       return false;
     }
-    final l$joinCode = joinCode;
-    final lOther$joinCode = other.joinCode;
-    if (l$joinCode != lOther$joinCode) {
+    final l$input = input;
+    final lOther$input = other.input;
+    if (l$input != lOther$input) {
       return false;
     }
     return true;
@@ -2938,8 +2940,8 @@ class Variables$Mutation$JoinTeam {
 
   @override
   int get hashCode {
-    final l$joinCode = joinCode;
-    return Object.hashAll([l$joinCode]);
+    final l$input = input;
+    return Object.hashAll([l$input]);
   }
 }
 
@@ -2952,7 +2954,7 @@ abstract class CopyWith$Variables$Mutation$JoinTeam<TRes> {
   factory CopyWith$Variables$Mutation$JoinTeam.stub(TRes res) =
       _CopyWithStubImpl$Variables$Mutation$JoinTeam;
 
-  TRes call({String? joinCode});
+  TRes call({Input$JoinTeamInput? input});
 }
 
 class _CopyWithImpl$Variables$Mutation$JoinTeam<TRes>
@@ -2965,11 +2967,11 @@ class _CopyWithImpl$Variables$Mutation$JoinTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  TRes call({Object? joinCode = _undefined}) => _then(
+  TRes call({Object? input = _undefined}) => _then(
     Variables$Mutation$JoinTeam._({
       ..._instance._$data,
-      if (joinCode != _undefined && joinCode != null)
-        'joinCode': (joinCode as String),
+      if (input != _undefined && input != null)
+        'input': (input as Input$JoinTeamInput),
     }),
   );
 }
@@ -2980,7 +2982,7 @@ class _CopyWithStubImpl$Variables$Mutation$JoinTeam<TRes>
 
   TRes _res;
 
-  call({String? joinCode}) => _res;
+  call({Input$JoinTeamInput? input}) => _res;
 }
 
 class Mutation$JoinTeam {
@@ -3109,8 +3111,11 @@ const documentNodeMutationJoinTeam = DocumentNode(
       name: NameNode(value: 'JoinTeam'),
       variableDefinitions: [
         VariableDefinitionNode(
-          variable: VariableNode(name: NameNode(value: 'joinCode')),
-          type: NamedTypeNode(name: NameNode(value: 'String'), isNonNull: true),
+          variable: VariableNode(name: NameNode(value: 'input')),
+          type: NamedTypeNode(
+            name: NameNode(value: 'JoinTeamInput'),
+            isNonNull: true,
+          ),
           defaultValue: DefaultValueNode(value: null),
           directives: [],
         ),
@@ -3123,8 +3128,8 @@ const documentNodeMutationJoinTeam = DocumentNode(
             alias: null,
             arguments: [
               ArgumentNode(
-                name: NameNode(value: 'joinCode'),
-                value: VariableNode(name: NameNode(value: 'joinCode')),
+                name: NameNode(value: 'joinTeamInput'),
+                value: VariableNode(name: NameNode(value: 'input')),
               ),
             ],
             directives: [],

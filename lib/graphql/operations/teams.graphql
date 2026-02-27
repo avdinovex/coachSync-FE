@@ -48,8 +48,8 @@ mutation AddTeamMember($input: AddTeamMemberInput!) {
   }
 }
 
-mutation JoinTeam($joinCode: String!) {
-  joinTeam(joinCode: $joinCode) {
+mutation JoinTeam($input: JoinTeamInput!) {
+  joinTeam(joinTeamInput: $input) {
     id
     teamId
     userId

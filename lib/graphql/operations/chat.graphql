@@ -1,0 +1,105 @@
+query GetMessages($teamId: String!, $limit: Int) {
+  messages(teamId: $teamId, limit: $limit) {
+    id
+    teamId
+    userId
+    content
+    messageType
+    metadata
+    isEdited
+    isDeletedForEveryone
+    editedAt
+    createdAt
+    user {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+}
+
+mutation SendMessage($input: SendMessageInput!) {
+  sendMessage(sendMessageInput: $input) {
+    id
+    teamId
+    userId
+    content
+    messageType
+    metadata
+    isEdited
+    isDeletedForEveryone
+    editedAt
+    createdAt
+    user {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+}
+
+mutation EditMessage($input: EditMessageInput!) {
+  editMessage(editMessageInput: $input) {
+    id
+    teamId
+    userId
+    content
+    messageType
+    metadata
+    isEdited
+    isDeletedForEveryone
+    editedAt
+    createdAt
+    user {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+}
+
+mutation DeleteMessageForEveryone($messageId: String!) {
+  deleteMessageForEveryone(messageId: $messageId) {
+    id
+    teamId
+    userId
+    content
+    messageType
+    metadata
+    isEdited
+    isDeletedForEveryone
+    editedAt
+    createdAt
+  }
+}
+
+mutation DeleteMessageForMe($messageId: String!) {
+  deleteMessageForMe(messageId: $messageId)
+}
+
+query GetUnreadCounts {
+  unreadCounts {
+    teamId
+    count
+    lastMessage {
+      id
+      content
+      messageType
+      metadata
+      createdAt
+      userId
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+}
+
+mutation MarkMessagesAsRead($teamId: String!) {
+  markMessagesAsRead(teamId: $teamId)
+}

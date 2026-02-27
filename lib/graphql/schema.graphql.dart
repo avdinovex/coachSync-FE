@@ -1,45 +1,65 @@
 class Input$AddTeamMemberInput {
   factory Input$AddTeamMemberInput({
+    String? email,
     required List<Enum$MemberRole> role,
-    required String teamId,
-    required String userId,
+    String? teamId,
+    String? userId,
   }) => Input$AddTeamMemberInput._({
+    if (email != null) r'email': email,
     r'role': role,
-    r'teamId': teamId,
-    r'userId': userId,
+    if (teamId != null) r'teamId': teamId,
+    if (userId != null) r'userId': userId,
   });
 
   Input$AddTeamMemberInput._(this._$data);
 
   factory Input$AddTeamMemberInput.fromJson(Map<String, dynamic> data) {
     final result$data = <String, dynamic>{};
+    if (data.containsKey('email')) {
+      final l$email = data['email'];
+      result$data['email'] = (l$email as String?);
+    }
     final l$role = data['role'];
     result$data['role'] = (l$role as List<dynamic>)
         .map((e) => fromJson$Enum$MemberRole((e as String)))
         .toList();
-    final l$teamId = data['teamId'];
-    result$data['teamId'] = (l$teamId as String);
-    final l$userId = data['userId'];
-    result$data['userId'] = (l$userId as String);
+    if (data.containsKey('teamId')) {
+      final l$teamId = data['teamId'];
+      result$data['teamId'] = (l$teamId as String?);
+    }
+    if (data.containsKey('userId')) {
+      final l$userId = data['userId'];
+      result$data['userId'] = (l$userId as String?);
+    }
     return Input$AddTeamMemberInput._(result$data);
   }
 
   Map<String, dynamic> _$data;
 
+  String? get email => (_$data['email'] as String?);
+
   List<Enum$MemberRole> get role => (_$data['role'] as List<Enum$MemberRole>);
 
-  String get teamId => (_$data['teamId'] as String);
+  String? get teamId => (_$data['teamId'] as String?);
 
-  String get userId => (_$data['userId'] as String);
+  String? get userId => (_$data['userId'] as String?);
 
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
+    if (_$data.containsKey('email')) {
+      final l$email = email;
+      result$data['email'] = l$email;
+    }
     final l$role = role;
     result$data['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
-    final l$teamId = teamId;
-    result$data['teamId'] = l$teamId;
-    final l$userId = userId;
-    result$data['userId'] = l$userId;
+    if (_$data.containsKey('teamId')) {
+      final l$teamId = teamId;
+      result$data['teamId'] = l$teamId;
+    }
+    if (_$data.containsKey('userId')) {
+      final l$userId = userId;
+      result$data['userId'] = l$userId;
+    }
     return result$data;
   }
 
@@ -53,6 +73,14 @@ class Input$AddTeamMemberInput {
     }
     if (other is! Input$AddTeamMemberInput ||
         runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$email = email;
+    final lOther$email = other.email;
+    if (_$data.containsKey('email') != other._$data.containsKey('email')) {
+      return false;
+    }
+    if (l$email != lOther$email) {
       return false;
     }
     final l$role = role;
@@ -69,11 +97,17 @@ class Input$AddTeamMemberInput {
     }
     final l$teamId = teamId;
     final lOther$teamId = other.teamId;
+    if (_$data.containsKey('teamId') != other._$data.containsKey('teamId')) {
+      return false;
+    }
     if (l$teamId != lOther$teamId) {
       return false;
     }
     final l$userId = userId;
     final lOther$userId = other.userId;
+    if (_$data.containsKey('userId') != other._$data.containsKey('userId')) {
+      return false;
+    }
     if (l$userId != lOther$userId) {
       return false;
     }
@@ -82,13 +116,15 @@ class Input$AddTeamMemberInput {
 
   @override
   int get hashCode {
+    final l$email = email;
     final l$role = role;
     final l$teamId = teamId;
     final l$userId = userId;
     return Object.hashAll([
+      _$data.containsKey('email') ? l$email : const {},
       Object.hashAll(l$role.map((v) => v)),
-      l$teamId,
-      l$userId,
+      _$data.containsKey('teamId') ? l$teamId : const {},
+      _$data.containsKey('userId') ? l$userId : const {},
     ]);
   }
 }
@@ -102,7 +138,12 @@ abstract class CopyWith$Input$AddTeamMemberInput<TRes> {
   factory CopyWith$Input$AddTeamMemberInput.stub(TRes res) =
       _CopyWithStubImpl$Input$AddTeamMemberInput;
 
-  TRes call({List<Enum$MemberRole>? role, String? teamId, String? userId});
+  TRes call({
+    String? email,
+    List<Enum$MemberRole>? role,
+    String? teamId,
+    String? userId,
+  });
 }
 
 class _CopyWithImpl$Input$AddTeamMemberInput<TRes>
@@ -116,16 +157,18 @@ class _CopyWithImpl$Input$AddTeamMemberInput<TRes>
   static const _undefined = <dynamic, dynamic>{};
 
   TRes call({
+    Object? email = _undefined,
     Object? role = _undefined,
     Object? teamId = _undefined,
     Object? userId = _undefined,
   }) => _then(
     Input$AddTeamMemberInput._({
       ..._instance._$data,
+      if (email != _undefined) 'email': (email as String?),
       if (role != _undefined && role != null)
         'role': (role as List<Enum$MemberRole>),
-      if (teamId != _undefined && teamId != null) 'teamId': (teamId as String),
-      if (userId != _undefined && userId != null) 'userId': (userId as String),
+      if (teamId != _undefined) 'teamId': (teamId as String?),
+      if (userId != _undefined) 'userId': (userId as String?),
     }),
   );
 }
@@ -136,7 +179,133 @@ class _CopyWithStubImpl$Input$AddTeamMemberInput<TRes>
 
   TRes _res;
 
-  call({List<Enum$MemberRole>? role, String? teamId, String? userId}) => _res;
+  call({
+    String? email,
+    List<Enum$MemberRole>? role,
+    String? teamId,
+    String? userId,
+  }) => _res;
+}
+
+class Input$CreateChildProfileInput {
+  factory Input$CreateChildProfileInput({
+    required String firstName,
+    String? lastName,
+  }) => Input$CreateChildProfileInput._({
+    r'firstName': firstName,
+    if (lastName != null) r'lastName': lastName,
+  });
+
+  Input$CreateChildProfileInput._(this._$data);
+
+  factory Input$CreateChildProfileInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$firstName = data['firstName'];
+    result$data['firstName'] = (l$firstName as String);
+    if (data.containsKey('lastName')) {
+      final l$lastName = data['lastName'];
+      result$data['lastName'] = (l$lastName as String?);
+    }
+    return Input$CreateChildProfileInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get firstName => (_$data['firstName'] as String);
+
+  String? get lastName => (_$data['lastName'] as String?);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$firstName = firstName;
+    result$data['firstName'] = l$firstName;
+    if (_$data.containsKey('lastName')) {
+      final l$lastName = lastName;
+      result$data['lastName'] = l$lastName;
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$CreateChildProfileInput<Input$CreateChildProfileInput>
+  get copyWith => CopyWith$Input$CreateChildProfileInput(this, (i) => i);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$CreateChildProfileInput ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$firstName = firstName;
+    final lOther$firstName = other.firstName;
+    if (l$firstName != lOther$firstName) {
+      return false;
+    }
+    final l$lastName = lastName;
+    final lOther$lastName = other.lastName;
+    if (_$data.containsKey('lastName') !=
+        other._$data.containsKey('lastName')) {
+      return false;
+    }
+    if (l$lastName != lOther$lastName) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$firstName = firstName;
+    final l$lastName = lastName;
+    return Object.hashAll([
+      l$firstName,
+      _$data.containsKey('lastName') ? l$lastName : const {},
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$CreateChildProfileInput<TRes> {
+  factory CopyWith$Input$CreateChildProfileInput(
+    Input$CreateChildProfileInput instance,
+    TRes Function(Input$CreateChildProfileInput) then,
+  ) = _CopyWithImpl$Input$CreateChildProfileInput;
+
+  factory CopyWith$Input$CreateChildProfileInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$CreateChildProfileInput;
+
+  TRes call({String? firstName, String? lastName});
+}
+
+class _CopyWithImpl$Input$CreateChildProfileInput<TRes>
+    implements CopyWith$Input$CreateChildProfileInput<TRes> {
+  _CopyWithImpl$Input$CreateChildProfileInput(this._instance, this._then);
+
+  final Input$CreateChildProfileInput _instance;
+
+  final TRes Function(Input$CreateChildProfileInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({Object? firstName = _undefined, Object? lastName = _undefined}) =>
+      _then(
+        Input$CreateChildProfileInput._({
+          ..._instance._$data,
+          if (firstName != _undefined && firstName != null)
+            'firstName': (firstName as String),
+          if (lastName != _undefined) 'lastName': (lastName as String?),
+        }),
+      );
+}
+
+class _CopyWithStubImpl$Input$CreateChildProfileInput<TRes>
+    implements CopyWith$Input$CreateChildProfileInput<TRes> {
+  _CopyWithStubImpl$Input$CreateChildProfileInput(this._res);
+
+  TRes _res;
+
+  call({String? firstName, String? lastName}) => _res;
 }
 
 class Input$CreateEventInput {
@@ -475,7 +644,12 @@ class Input$CreateRsvpInput {
   factory Input$CreateRsvpInput({
     required String eventId,
     required Enum$RsvpStatus status,
-  }) => Input$CreateRsvpInput._({r'eventId': eventId, r'status': status});
+    String? userId,
+  }) => Input$CreateRsvpInput._({
+    r'eventId': eventId,
+    r'status': status,
+    if (userId != null) r'userId': userId,
+  });
 
   Input$CreateRsvpInput._(this._$data);
 
@@ -485,6 +659,10 @@ class Input$CreateRsvpInput {
     result$data['eventId'] = (l$eventId as String);
     final l$status = data['status'];
     result$data['status'] = fromJson$Enum$RsvpStatus((l$status as String));
+    if (data.containsKey('userId')) {
+      final l$userId = data['userId'];
+      result$data['userId'] = (l$userId as String?);
+    }
     return Input$CreateRsvpInput._(result$data);
   }
 
@@ -494,12 +672,18 @@ class Input$CreateRsvpInput {
 
   Enum$RsvpStatus get status => (_$data['status'] as Enum$RsvpStatus);
 
+  String? get userId => (_$data['userId'] as String?);
+
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
     final l$eventId = eventId;
     result$data['eventId'] = l$eventId;
     final l$status = status;
     result$data['status'] = toJson$Enum$RsvpStatus(l$status);
+    if (_$data.containsKey('userId')) {
+      final l$userId = userId;
+      result$data['userId'] = l$userId;
+    }
     return result$data;
   }
 
@@ -524,6 +708,14 @@ class Input$CreateRsvpInput {
     if (l$status != lOther$status) {
       return false;
     }
+    final l$userId = userId;
+    final lOther$userId = other.userId;
+    if (_$data.containsKey('userId') != other._$data.containsKey('userId')) {
+      return false;
+    }
+    if (l$userId != lOther$userId) {
+      return false;
+    }
     return true;
   }
 
@@ -531,7 +723,12 @@ class Input$CreateRsvpInput {
   int get hashCode {
     final l$eventId = eventId;
     final l$status = status;
-    return Object.hashAll([l$eventId, l$status]);
+    final l$userId = userId;
+    return Object.hashAll([
+      l$eventId,
+      l$status,
+      _$data.containsKey('userId') ? l$userId : const {},
+    ]);
   }
 }
 
@@ -544,7 +741,7 @@ abstract class CopyWith$Input$CreateRsvpInput<TRes> {
   factory CopyWith$Input$CreateRsvpInput.stub(TRes res) =
       _CopyWithStubImpl$Input$CreateRsvpInput;
 
-  TRes call({String? eventId, Enum$RsvpStatus? status});
+  TRes call({String? eventId, Enum$RsvpStatus? status, String? userId});
 }
 
 class _CopyWithImpl$Input$CreateRsvpInput<TRes>
@@ -557,16 +754,20 @@ class _CopyWithImpl$Input$CreateRsvpInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  TRes call({Object? eventId = _undefined, Object? status = _undefined}) =>
-      _then(
-        Input$CreateRsvpInput._({
-          ..._instance._$data,
-          if (eventId != _undefined && eventId != null)
-            'eventId': (eventId as String),
-          if (status != _undefined && status != null)
-            'status': (status as Enum$RsvpStatus),
-        }),
-      );
+  TRes call({
+    Object? eventId = _undefined,
+    Object? status = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$CreateRsvpInput._({
+      ..._instance._$data,
+      if (eventId != _undefined && eventId != null)
+        'eventId': (eventId as String),
+      if (status != _undefined && status != null)
+        'status': (status as Enum$RsvpStatus),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$CreateRsvpInput<TRes>
@@ -575,7 +776,7 @@ class _CopyWithStubImpl$Input$CreateRsvpInput<TRes>
 
   TRes _res;
 
-  call({String? eventId, Enum$RsvpStatus? status}) => _res;
+  call({String? eventId, Enum$RsvpStatus? status, String? userId}) => _res;
 }
 
 class Input$CreateTeamInput {
@@ -714,6 +915,231 @@ class _CopyWithStubImpl$Input$CreateTeamInput<TRes>
   TRes _res;
 
   call({String? description, String? name, String? sport}) => _res;
+}
+
+class Input$EditMessageInput {
+  factory Input$EditMessageInput({
+    required String content,
+    required String messageId,
+  }) =>
+      Input$EditMessageInput._({r'content': content, r'messageId': messageId});
+
+  Input$EditMessageInput._(this._$data);
+
+  factory Input$EditMessageInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$content = data['content'];
+    result$data['content'] = (l$content as String);
+    final l$messageId = data['messageId'];
+    result$data['messageId'] = (l$messageId as String);
+    return Input$EditMessageInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get content => (_$data['content'] as String);
+
+  String get messageId => (_$data['messageId'] as String);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$content = content;
+    result$data['content'] = l$content;
+    final l$messageId = messageId;
+    result$data['messageId'] = l$messageId;
+    return result$data;
+  }
+
+  CopyWith$Input$EditMessageInput<Input$EditMessageInput> get copyWith =>
+      CopyWith$Input$EditMessageInput(this, (i) => i);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$EditMessageInput || runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$content = content;
+    final lOther$content = other.content;
+    if (l$content != lOther$content) {
+      return false;
+    }
+    final l$messageId = messageId;
+    final lOther$messageId = other.messageId;
+    if (l$messageId != lOther$messageId) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$content = content;
+    final l$messageId = messageId;
+    return Object.hashAll([l$content, l$messageId]);
+  }
+}
+
+abstract class CopyWith$Input$EditMessageInput<TRes> {
+  factory CopyWith$Input$EditMessageInput(
+    Input$EditMessageInput instance,
+    TRes Function(Input$EditMessageInput) then,
+  ) = _CopyWithImpl$Input$EditMessageInput;
+
+  factory CopyWith$Input$EditMessageInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$EditMessageInput;
+
+  TRes call({String? content, String? messageId});
+}
+
+class _CopyWithImpl$Input$EditMessageInput<TRes>
+    implements CopyWith$Input$EditMessageInput<TRes> {
+  _CopyWithImpl$Input$EditMessageInput(this._instance, this._then);
+
+  final Input$EditMessageInput _instance;
+
+  final TRes Function(Input$EditMessageInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({Object? content = _undefined, Object? messageId = _undefined}) =>
+      _then(
+        Input$EditMessageInput._({
+          ..._instance._$data,
+          if (content != _undefined && content != null)
+            'content': (content as String),
+          if (messageId != _undefined && messageId != null)
+            'messageId': (messageId as String),
+        }),
+      );
+}
+
+class _CopyWithStubImpl$Input$EditMessageInput<TRes>
+    implements CopyWith$Input$EditMessageInput<TRes> {
+  _CopyWithStubImpl$Input$EditMessageInput(this._res);
+
+  TRes _res;
+
+  call({String? content, String? messageId}) => _res;
+}
+
+class Input$JoinTeamInput {
+  factory Input$JoinTeamInput({required String joinCode, String? userId}) =>
+      Input$JoinTeamInput._({
+        r'joinCode': joinCode,
+        if (userId != null) r'userId': userId,
+      });
+
+  Input$JoinTeamInput._(this._$data);
+
+  factory Input$JoinTeamInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$joinCode = data['joinCode'];
+    result$data['joinCode'] = (l$joinCode as String);
+    if (data.containsKey('userId')) {
+      final l$userId = data['userId'];
+      result$data['userId'] = (l$userId as String?);
+    }
+    return Input$JoinTeamInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get joinCode => (_$data['joinCode'] as String);
+
+  String? get userId => (_$data['userId'] as String?);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$joinCode = joinCode;
+    result$data['joinCode'] = l$joinCode;
+    if (_$data.containsKey('userId')) {
+      final l$userId = userId;
+      result$data['userId'] = l$userId;
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$JoinTeamInput<Input$JoinTeamInput> get copyWith =>
+      CopyWith$Input$JoinTeamInput(this, (i) => i);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$JoinTeamInput || runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$joinCode = joinCode;
+    final lOther$joinCode = other.joinCode;
+    if (l$joinCode != lOther$joinCode) {
+      return false;
+    }
+    final l$userId = userId;
+    final lOther$userId = other.userId;
+    if (_$data.containsKey('userId') != other._$data.containsKey('userId')) {
+      return false;
+    }
+    if (l$userId != lOther$userId) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$joinCode = joinCode;
+    final l$userId = userId;
+    return Object.hashAll([
+      l$joinCode,
+      _$data.containsKey('userId') ? l$userId : const {},
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$JoinTeamInput<TRes> {
+  factory CopyWith$Input$JoinTeamInput(
+    Input$JoinTeamInput instance,
+    TRes Function(Input$JoinTeamInput) then,
+  ) = _CopyWithImpl$Input$JoinTeamInput;
+
+  factory CopyWith$Input$JoinTeamInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$JoinTeamInput;
+
+  TRes call({String? joinCode, String? userId});
+}
+
+class _CopyWithImpl$Input$JoinTeamInput<TRes>
+    implements CopyWith$Input$JoinTeamInput<TRes> {
+  _CopyWithImpl$Input$JoinTeamInput(this._instance, this._then);
+
+  final Input$JoinTeamInput _instance;
+
+  final TRes Function(Input$JoinTeamInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({Object? joinCode = _undefined, Object? userId = _undefined}) =>
+      _then(
+        Input$JoinTeamInput._({
+          ..._instance._$data,
+          if (joinCode != _undefined && joinCode != null)
+            'joinCode': (joinCode as String),
+          if (userId != _undefined) 'userId': (userId as String?),
+        }),
+      );
+}
+
+class _CopyWithStubImpl$Input$JoinTeamInput<TRes>
+    implements CopyWith$Input$JoinTeamInput<TRes> {
+  _CopyWithStubImpl$Input$JoinTeamInput(this._res);
+
+  TRes _res;
+
+  call({String? joinCode, String? userId}) => _res;
 }
 
 class Input$LoginInput {
@@ -1309,7 +1735,12 @@ class Input$SendMessageInput {
   factory Input$SendMessageInput({
     required String content,
     required String teamId,
-  }) => Input$SendMessageInput._({r'content': content, r'teamId': teamId});
+    String? userId,
+  }) => Input$SendMessageInput._({
+    r'content': content,
+    r'teamId': teamId,
+    if (userId != null) r'userId': userId,
+  });
 
   Input$SendMessageInput._(this._$data);
 
@@ -1319,6 +1750,10 @@ class Input$SendMessageInput {
     result$data['content'] = (l$content as String);
     final l$teamId = data['teamId'];
     result$data['teamId'] = (l$teamId as String);
+    if (data.containsKey('userId')) {
+      final l$userId = data['userId'];
+      result$data['userId'] = (l$userId as String?);
+    }
     return Input$SendMessageInput._(result$data);
   }
 
@@ -1328,12 +1763,18 @@ class Input$SendMessageInput {
 
   String get teamId => (_$data['teamId'] as String);
 
+  String? get userId => (_$data['userId'] as String?);
+
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
     final l$content = content;
     result$data['content'] = l$content;
     final l$teamId = teamId;
     result$data['teamId'] = l$teamId;
+    if (_$data.containsKey('userId')) {
+      final l$userId = userId;
+      result$data['userId'] = l$userId;
+    }
     return result$data;
   }
 
@@ -1358,6 +1799,14 @@ class Input$SendMessageInput {
     if (l$teamId != lOther$teamId) {
       return false;
     }
+    final l$userId = userId;
+    final lOther$userId = other.userId;
+    if (_$data.containsKey('userId') != other._$data.containsKey('userId')) {
+      return false;
+    }
+    if (l$userId != lOther$userId) {
+      return false;
+    }
     return true;
   }
 
@@ -1365,7 +1814,12 @@ class Input$SendMessageInput {
   int get hashCode {
     final l$content = content;
     final l$teamId = teamId;
-    return Object.hashAll([l$content, l$teamId]);
+    final l$userId = userId;
+    return Object.hashAll([
+      l$content,
+      l$teamId,
+      _$data.containsKey('userId') ? l$userId : const {},
+    ]);
   }
 }
 
@@ -1378,7 +1832,7 @@ abstract class CopyWith$Input$SendMessageInput<TRes> {
   factory CopyWith$Input$SendMessageInput.stub(TRes res) =
       _CopyWithStubImpl$Input$SendMessageInput;
 
-  TRes call({String? content, String? teamId});
+  TRes call({String? content, String? teamId, String? userId});
 }
 
 class _CopyWithImpl$Input$SendMessageInput<TRes>
@@ -1391,16 +1845,19 @@ class _CopyWithImpl$Input$SendMessageInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  TRes call({Object? content = _undefined, Object? teamId = _undefined}) =>
-      _then(
-        Input$SendMessageInput._({
-          ..._instance._$data,
-          if (content != _undefined && content != null)
-            'content': (content as String),
-          if (teamId != _undefined && teamId != null)
-            'teamId': (teamId as String),
-        }),
-      );
+  TRes call({
+    Object? content = _undefined,
+    Object? teamId = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$SendMessageInput._({
+      ..._instance._$data,
+      if (content != _undefined && content != null)
+        'content': (content as String),
+      if (teamId != _undefined && teamId != null) 'teamId': (teamId as String),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$SendMessageInput<TRes>
@@ -1409,7 +1866,7 @@ class _CopyWithStubImpl$Input$SendMessageInput<TRes>
 
   TRes _res;
 
-  call({String? content, String? teamId}) => _res;
+  call({String? content, String? teamId, String? userId}) => _res;
 }
 
 class Input$SignupInput {
@@ -2159,7 +2616,12 @@ class Input$UpdateRsvpInput {
   factory Input$UpdateRsvpInput({
     required String eventId,
     required Enum$RsvpStatus status,
-  }) => Input$UpdateRsvpInput._({r'eventId': eventId, r'status': status});
+    String? userId,
+  }) => Input$UpdateRsvpInput._({
+    r'eventId': eventId,
+    r'status': status,
+    if (userId != null) r'userId': userId,
+  });
 
   Input$UpdateRsvpInput._(this._$data);
 
@@ -2169,6 +2631,10 @@ class Input$UpdateRsvpInput {
     result$data['eventId'] = (l$eventId as String);
     final l$status = data['status'];
     result$data['status'] = fromJson$Enum$RsvpStatus((l$status as String));
+    if (data.containsKey('userId')) {
+      final l$userId = data['userId'];
+      result$data['userId'] = (l$userId as String?);
+    }
     return Input$UpdateRsvpInput._(result$data);
   }
 
@@ -2178,12 +2644,18 @@ class Input$UpdateRsvpInput {
 
   Enum$RsvpStatus get status => (_$data['status'] as Enum$RsvpStatus);
 
+  String? get userId => (_$data['userId'] as String?);
+
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
     final l$eventId = eventId;
     result$data['eventId'] = l$eventId;
     final l$status = status;
     result$data['status'] = toJson$Enum$RsvpStatus(l$status);
+    if (_$data.containsKey('userId')) {
+      final l$userId = userId;
+      result$data['userId'] = l$userId;
+    }
     return result$data;
   }
 
@@ -2208,6 +2680,14 @@ class Input$UpdateRsvpInput {
     if (l$status != lOther$status) {
       return false;
     }
+    final l$userId = userId;
+    final lOther$userId = other.userId;
+    if (_$data.containsKey('userId') != other._$data.containsKey('userId')) {
+      return false;
+    }
+    if (l$userId != lOther$userId) {
+      return false;
+    }
     return true;
   }
 
@@ -2215,7 +2695,12 @@ class Input$UpdateRsvpInput {
   int get hashCode {
     final l$eventId = eventId;
     final l$status = status;
-    return Object.hashAll([l$eventId, l$status]);
+    final l$userId = userId;
+    return Object.hashAll([
+      l$eventId,
+      l$status,
+      _$data.containsKey('userId') ? l$userId : const {},
+    ]);
   }
 }
 
@@ -2228,7 +2713,7 @@ abstract class CopyWith$Input$UpdateRsvpInput<TRes> {
   factory CopyWith$Input$UpdateRsvpInput.stub(TRes res) =
       _CopyWithStubImpl$Input$UpdateRsvpInput;
 
-  TRes call({String? eventId, Enum$RsvpStatus? status});
+  TRes call({String? eventId, Enum$RsvpStatus? status, String? userId});
 }
 
 class _CopyWithImpl$Input$UpdateRsvpInput<TRes>
@@ -2241,16 +2726,20 @@ class _CopyWithImpl$Input$UpdateRsvpInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  TRes call({Object? eventId = _undefined, Object? status = _undefined}) =>
-      _then(
-        Input$UpdateRsvpInput._({
-          ..._instance._$data,
-          if (eventId != _undefined && eventId != null)
-            'eventId': (eventId as String),
-          if (status != _undefined && status != null)
-            'status': (status as Enum$RsvpStatus),
-        }),
-      );
+  TRes call({
+    Object? eventId = _undefined,
+    Object? status = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$UpdateRsvpInput._({
+      ..._instance._$data,
+      if (eventId != _undefined && eventId != null)
+        'eventId': (eventId as String),
+      if (status != _undefined && status != null)
+        'status': (status as Enum$RsvpStatus),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$UpdateRsvpInput<TRes>
@@ -2259,7 +2748,7 @@ class _CopyWithStubImpl$Input$UpdateRsvpInput<TRes>
 
   TRes _res;
 
-  call({String? eventId, Enum$RsvpStatus? status}) => _res;
+  call({String? eventId, Enum$RsvpStatus? status, String? userId}) => _res;
 }
 
 class Input$UpdateTeamInput {

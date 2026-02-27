@@ -3,9 +3,10 @@
 # ------------------------------------------------------
 
 input AddTeamMemberInput {
+  email: String
   role: [MemberRole!]!
-  teamId: String!
-  userId: String!
+  teamId: String
+  userId: String
 }
 
 type Auth {
@@ -22,6 +23,11 @@ type Auth {
 type AuthResponse {
   accessToken: String!
   user: Auth!
+}
+
+input CreateChildProfileInput {
+  firstName: String!
+  lastName: String
 }
 
 input CreateEventInput {
@@ -42,6 +48,11 @@ input CreateNotificationInput {
 input CreateRsvpInput {
   eventId: String!
   status: RsvpStatus!
+
+  """
+  User ID to RSVP as (optional, defaults to current user). Must be current user or a managed child.
+  """
+  userId: String
 }
 
 input CreateTeamInput {
@@ -54,6 +65,11 @@ input CreateTeamInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input EditMessageInput {
+  content: String!
+  messageId: String!
+}
 
 type Event {
   createdAt: DateTime!
@@ -99,6 +115,20 @@ type GameStat {
   updatedAt: DateTime!
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input JoinTeamInput {
+  joinCode: String!
+
+  """
+  User ID to join as (optional, defaults to current user). Must be current user or a managed child.
+  """
+  userId: String
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -115,7 +145,12 @@ enum MemberRole {
 type Message {
   content: String!
   createdAt: DateTime!
+  editedAt: DateTime
   id: String!
+  isDeletedForEveryone: Boolean!
+  isEdited: Boolean!
+  messageType: String!
+  metadata: JSON
   teamId: String!
   user: User
   userId: String!
@@ -123,12 +158,23 @@ type Message {
 
 type Mutation {
   addTeamMember(addMemberInput: AddTeamMemberInput!): TeamMember!
+
+  """Create a child/player profile managed by the current user"""
+  createChildProfile(input: CreateChildProfileInput!): User!
   createEvent(createEventInput: CreateEventInput!): Event!
   createNotification(createNotificationInput: CreateNotificationInput!): Notification!
   createRsvp(createRsvpInput: CreateRsvpInput!): EventRsvp!
   createTeam(createTeamInput: CreateTeamInput!): Team!
-  joinTeam(joinCode: String!): TeamMember!
+  deleteMessageForEveryone(messageId: String!): Message!
+  deleteMessageForMe(messageId: String!): Boolean!
+  editMessage(editMessageInput: EditMessageInput!): Message!
+
+  """
+  Join a team using a join code. Optionally specify userId to join as a managed child.
+  """
+  joinTeam(joinTeamInput: JoinTeamInput!): TeamMember!
   login(loginInput: LoginInput!): AuthResponse!
+  markMessagesAsRead(teamId: String!): Boolean!
   recordGameStats(recordGameStatsInput: RecordGameStatsInput!): GameStat!
   removeEvent(id: String!): Boolean!
   removeNotification(id: Int!): Notification!
@@ -172,6 +218,7 @@ type Query {
   team(id: String!): Team!
   teamStats(teamId: String!): [GameStat!]!
   teams: [Team!]!
+  unreadCounts: [UnreadCount!]!
   upcomingEvents(teamId: String!): [Event!]!
   user(id: String!): User!
 }
@@ -202,6 +249,11 @@ enum RsvpStatus {
 input SendMessageInput {
   content: String!
   teamId: String!
+
+  """
+  User ID to send message as (optional, defaults to current user). Must be current user or a managed child.
+  """
+  userId: String
 }
 
 input SignupInput {
@@ -230,12 +282,21 @@ type Team {
 }
 
 type TeamMember {
+  email: String
+  firstName: String
   id: String!
   joinedAt: DateTime!
+  lastName: String
   role: [MemberRole!]!
   teamId: String!
   user: User
   userId: String!
+}
+
+type UnreadCount {
+  count: Int!
+  lastMessage: Message
+  teamId: String!
 }
 
 input UpdateEventInput {
@@ -263,6 +324,11 @@ input UpdateProfileInput {
 input UpdateRsvpInput {
   eventId: String!
   status: RsvpStatus!
+
+  """
+  User ID to update RSVP for (optional, defaults to current user). Must be current user or a managed child.
+  """
+  userId: String
 }
 
 input UpdateTeamInput {
@@ -275,10 +341,15 @@ input UpdateTeamInput {
 }
 
 type User {
+  """Child users managed by this user"""
+  children: [User!]!
   createdAt: DateTime!
   email: String!
   emailVerified: DateTime
   firstName: String
+
+  """Guardian users who manage this user"""
+  guardians: [User!]!
   id: String!
   lastName: String
   role: UserRole!
