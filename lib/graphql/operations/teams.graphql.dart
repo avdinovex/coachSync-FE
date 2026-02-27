@@ -27,12 +27,12 @@ class Query$GetMyTeams {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$myTeams = myTeams;
-    resultData['myTeams'] = l$myTeams.map((e) => e.toJson()).toList();
+    _resultData['myTeams'] = l$myTeams.map((e) => e.toJson()).toList();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -93,7 +93,7 @@ abstract class CopyWith$Query$GetMyTeams<TRes> {
     Iterable<Query$GetMyTeams$myTeams> Function(
       Iterable<CopyWith$Query$GetMyTeams$myTeams<Query$GetMyTeams$myTeams>>,
     )
-    fn,
+    _fn,
   );
 }
 
@@ -107,7 +107,6 @@ class _CopyWithImpl$Query$GetMyTeams<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? myTeams = _undefined, Object? $__typename = _undefined}) =>
       _then(
         Query$GetMyTeams(
@@ -120,14 +119,13 @@ class _CopyWithImpl$Query$GetMyTeams<TRes>
         ),
       );
 
-  @override
   TRes myTeams(
     Iterable<Query$GetMyTeams$myTeams> Function(
       Iterable<CopyWith$Query$GetMyTeams$myTeams<Query$GetMyTeams$myTeams>>,
     )
-    fn,
+    _fn,
   ) => call(
-    myTeams: fn(
+    myTeams: _fn(
       _instance.myTeams.map(
         (e) => CopyWith$Query$GetMyTeams$myTeams(e, (i) => i),
       ),
@@ -139,13 +137,11 @@ class _CopyWithStubImpl$Query$GetMyTeams<TRes>
     implements CopyWith$Query$GetMyTeams<TRes> {
   _CopyWithStubImpl$Query$GetMyTeams(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({List<Query$GetMyTeams$myTeams>? myTeams, String? $__typename}) => _res;
 
-  @override
-  myTeams(fn) => _res;
+  myTeams(_fn) => _res;
 }
 
 const documentNodeQueryGetMyTeams = DocumentNode(
@@ -325,25 +321,32 @@ typedef OnQueryComplete$Query$GetMyTeams =
 
 class Options$Query$GetMyTeams extends graphql.QueryOptions<Query$GetMyTeams> {
   Options$Query$GetMyTeams({
-    super.operationName,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    String? operationName,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Query$GetMyTeams? typedOptimisticResult,
-    super.pollInterval,
-    super.context,
+    Duration? pollInterval,
+    graphql.Context? context,
     OnQueryComplete$Query$GetMyTeams? onComplete,
-    super.onError,
+    graphql.OnQueryError? onError,
   }) : onCompleteWithParsed = onComplete,
        super(
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         pollInterval: pollInterval,
+         context: context,
          onComplete: onComplete == null
              ? null
              : (data) => onComplete(
                  data,
                  data == null ? null : _parserFn$Query$GetMyTeams(data),
                ),
+         onError: onError,
          document: documentNodeQueryGetMyTeams,
          parserFn: _parserFn$Query$GetMyTeams,
        );
@@ -362,42 +365,51 @@ class Options$Query$GetMyTeams extends graphql.QueryOptions<Query$GetMyTeams> {
 class WatchOptions$Query$GetMyTeams
     extends graphql.WatchQueryOptions<Query$GetMyTeams> {
   WatchOptions$Query$GetMyTeams({
-    super.operationName,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    String? operationName,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Query$GetMyTeams? typedOptimisticResult,
-    super.context,
-    super.pollInterval,
-    super.eagerlyFetchResults,
-    super.carryForwardDataOnException,
-    super.fetchResults,
+    graphql.Context? context,
+    Duration? pollInterval,
+    bool? eagerlyFetchResults,
+    bool carryForwardDataOnException = true,
+    bool fetchResults = false,
   }) : super(
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          document: documentNodeQueryGetMyTeams,
+         pollInterval: pollInterval,
+         eagerlyFetchResults: eagerlyFetchResults,
+         carryForwardDataOnException: carryForwardDataOnException,
+         fetchResults: fetchResults,
          parserFn: _parserFn$Query$GetMyTeams,
        );
 }
 
 class FetchMoreOptions$Query$GetMyTeams extends graphql.FetchMoreOptions {
-  FetchMoreOptions$Query$GetMyTeams({required super.updateQuery})
-    : super(document: documentNodeQueryGetMyTeams);
+  FetchMoreOptions$Query$GetMyTeams({required graphql.UpdateQuery updateQuery})
+    : super(updateQuery: updateQuery, document: documentNodeQueryGetMyTeams);
 }
 
 extension ClientExtension$Query$GetMyTeams on graphql.GraphQLClient {
   Future<graphql.QueryResult<Query$GetMyTeams>> query$GetMyTeams([
     Options$Query$GetMyTeams? options,
-  ]) async => await query(options ?? Options$Query$GetMyTeams());
+  ]) async => await this.query(options ?? Options$Query$GetMyTeams());
 
   graphql.ObservableQuery<Query$GetMyTeams> watchQuery$GetMyTeams([
     WatchOptions$Query$GetMyTeams? options,
-  ]) => watchQuery(options ?? WatchOptions$Query$GetMyTeams());
+  ]) => this.watchQuery(options ?? WatchOptions$Query$GetMyTeams());
 
   void writeQuery$GetMyTeams({
     required Query$GetMyTeams data,
     bool broadcast = true,
-  }) => writeQuery(
+  }) => this.writeQuery(
     graphql.Request(
       operation: graphql.Operation(document: documentNodeQueryGetMyTeams),
     ),
@@ -406,7 +418,7 @@ extension ClientExtension$Query$GetMyTeams on graphql.GraphQLClient {
   );
 
   Query$GetMyTeams? readQuery$GetMyTeams({bool optimistic = true}) {
-    final result = readQuery(
+    final result = this.readQuery(
       graphql.Request(
         operation: graphql.Operation(document: documentNodeQueryGetMyTeams),
       ),
@@ -425,11 +437,13 @@ graphql.ObservableQuery<Query$GetMyTeams> useWatchQuery$GetMyTeams([
 
 class Query$GetMyTeams$Widget extends graphql_flutter.Query<Query$GetMyTeams> {
   Query$GetMyTeams$Widget({
-    super.key,
+    widgets.Key? key,
     Options$Query$GetMyTeams? options,
-    required super.builder,
+    required graphql_flutter.QueryBuilder<Query$GetMyTeams> builder,
   }) : super(
+         key: key,
          options: options ?? Options$Query$GetMyTeams(),
+         builder: builder,
        );
 }
 
@@ -494,26 +508,26 @@ class Query$GetMyTeams$myTeams {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$name = name;
-    resultData['name'] = l$name;
+    _resultData['name'] = l$name;
     final l$sport = sport;
-    resultData['sport'] = l$sport;
+    _resultData['sport'] = l$sport;
     final l$description = description;
-    resultData['description'] = l$description;
+    _resultData['description'] = l$description;
     final l$joinCode = joinCode;
-    resultData['joinCode'] = l$joinCode;
+    _resultData['joinCode'] = l$joinCode;
     final l$createdAt = createdAt;
-    resultData['createdAt'] = l$createdAt.toIso8601String();
+    _resultData['createdAt'] = l$createdAt.toIso8601String();
     final l$updatedAt = updatedAt;
-    resultData['updatedAt'] = l$updatedAt.toIso8601String();
+    _resultData['updatedAt'] = l$updatedAt.toIso8601String();
     final l$members = members;
-    resultData['members'] = l$members?.map((e) => e.toJson()).toList();
+    _resultData['members'] = l$members?.map((e) => e.toJson()).toList();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -643,7 +657,7 @@ abstract class CopyWith$Query$GetMyTeams$myTeams<TRes> {
         >
       >?,
     )
-    fn,
+    _fn,
   );
 }
 
@@ -657,7 +671,6 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? name = _undefined,
@@ -698,7 +711,6 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams<TRes>
     ),
   );
 
-  @override
   TRes members(
     Iterable<Query$GetMyTeams$myTeams$members>? Function(
       Iterable<
@@ -707,9 +719,9 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams<TRes>
         >
       >?,
     )
-    fn,
+    _fn,
   ) => call(
-    members: fn(
+    members: _fn(
       _instance.members?.map(
         (e) => CopyWith$Query$GetMyTeams$myTeams$members(e, (i) => i),
       ),
@@ -721,9 +733,8 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams<TRes>
     implements CopyWith$Query$GetMyTeams$myTeams<TRes> {
   _CopyWithStubImpl$Query$GetMyTeams$myTeams(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? name,
@@ -736,8 +747,7 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams<TRes>
     String? $__typename,
   }) => _res;
 
-  @override
-  members(fn) => _res;
+  members(_fn) => _res;
 }
 
 class Query$GetMyTeams$myTeams$members {
@@ -781,18 +791,18 @@ class Query$GetMyTeams$myTeams$members {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$userId = userId;
-    resultData['userId'] = l$userId;
+    _resultData['userId'] = l$userId;
     final l$role = role;
-    resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$user = user;
-    resultData['user'] = l$user?.toJson();
+    _resultData['user'] = l$user?.toJson();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -891,7 +901,6 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams$members<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? userId = _undefined,
@@ -916,7 +925,6 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams$members<TRes>
     ),
   );
 
-  @override
   CopyWith$Query$GetMyTeams$myTeams$members$user<TRes> get user {
     final local$user = _instance.user;
     return local$user == null
@@ -932,9 +940,8 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams$members<TRes>
     implements CopyWith$Query$GetMyTeams$myTeams$members<TRes> {
   _CopyWithStubImpl$Query$GetMyTeams$myTeams$members(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? userId,
@@ -943,7 +950,6 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams$members<TRes>
     String? $__typename,
   }) => _res;
 
-  @override
   CopyWith$Query$GetMyTeams$myTeams$members$user<TRes> get user =>
       CopyWith$Query$GetMyTeams$myTeams$members$user.stub(_res);
 }
@@ -985,18 +991,18 @@ class Query$GetMyTeams$myTeams$members$user {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$firstName = firstName;
-    resultData['firstName'] = l$firstName;
+    _resultData['firstName'] = l$firstName;
     final l$lastName = lastName;
-    resultData['lastName'] = l$lastName;
+    _resultData['lastName'] = l$lastName;
     final l$email = email;
-    resultData['email'] = l$email;
+    _resultData['email'] = l$email;
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -1093,7 +1099,6 @@ class _CopyWithImpl$Query$GetMyTeams$myTeams$members$user<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? firstName = _undefined,
@@ -1123,9 +1128,8 @@ class _CopyWithStubImpl$Query$GetMyTeams$myTeams$members$user<TRes>
     implements CopyWith$Query$GetMyTeams$myTeams$members$user<TRes> {
   _CopyWithStubImpl$Query$GetMyTeams$myTeams$members$user(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? firstName,
@@ -1211,7 +1215,6 @@ class _CopyWithImpl$Variables$Mutation$CreateTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? input = _undefined}) => _then(
     Variables$Mutation$CreateTeam._({
       ..._instance._$data,
@@ -1225,9 +1228,8 @@ class _CopyWithStubImpl$Variables$Mutation$CreateTeam<TRes>
     implements CopyWith$Variables$Mutation$CreateTeam<TRes> {
   _CopyWithStubImpl$Variables$Mutation$CreateTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({Input$CreateTeamInput? input}) => _res;
 }
 
@@ -1253,12 +1255,12 @@ class Mutation$CreateTeam {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$createTeam = createTeam;
-    resultData['createTeam'] = l$createTeam.toJson();
+    _resultData['createTeam'] = l$createTeam.toJson();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -1318,7 +1320,6 @@ class _CopyWithImpl$Mutation$CreateTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? createTeam = _undefined,
     Object? $__typename = _undefined,
@@ -1333,7 +1334,6 @@ class _CopyWithImpl$Mutation$CreateTeam<TRes>
     ),
   );
 
-  @override
   CopyWith$Mutation$CreateTeam$createTeam<TRes> get createTeam {
     final local$createTeam = _instance.createTeam;
     return CopyWith$Mutation$CreateTeam$createTeam(
@@ -1347,13 +1347,11 @@ class _CopyWithStubImpl$Mutation$CreateTeam<TRes>
     implements CopyWith$Mutation$CreateTeam<TRes> {
   _CopyWithStubImpl$Mutation$CreateTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({Mutation$CreateTeam$createTeam? createTeam, String? $__typename}) =>
       _res;
 
-  @override
   CopyWith$Mutation$CreateTeam$createTeam<TRes> get createTeam =>
       CopyWith$Mutation$CreateTeam$createTeam.stub(_res);
 }
@@ -1506,27 +1504,34 @@ typedef OnMutationCompleted$Mutation$CreateTeam =
 class Options$Mutation$CreateTeam
     extends graphql.MutationOptions<Mutation$CreateTeam> {
   Options$Mutation$CreateTeam({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$CreateTeam variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$CreateTeam? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$CreateTeam? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$CreateTeam>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$CreateTeam(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationCreateTeam,
          parserFn: _parserFn$Mutation$CreateTeam,
        );
@@ -1545,22 +1550,31 @@ class Options$Mutation$CreateTeam
 class WatchOptions$Mutation$CreateTeam
     extends graphql.WatchQueryOptions<Mutation$CreateTeam> {
   WatchOptions$Mutation$CreateTeam({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$CreateTeam variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$CreateTeam? typedOptimisticResult,
-    super.context,
-    super.pollInterval,
-    super.eagerlyFetchResults,
-    super.carryForwardDataOnException,
-    super.fetchResults,
+    graphql.Context? context,
+    Duration? pollInterval,
+    bool? eagerlyFetchResults,
+    bool carryForwardDataOnException = true,
+    bool fetchResults = false,
   }) : super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          document: documentNodeMutationCreateTeam,
+         pollInterval: pollInterval,
+         eagerlyFetchResults: eagerlyFetchResults,
+         carryForwardDataOnException: carryForwardDataOnException,
+         fetchResults: fetchResults,
          parserFn: _parserFn$Mutation$CreateTeam,
        );
 }
@@ -1568,11 +1582,11 @@ class WatchOptions$Mutation$CreateTeam
 extension ClientExtension$Mutation$CreateTeam on graphql.GraphQLClient {
   Future<graphql.QueryResult<Mutation$CreateTeam>> mutate$CreateTeam(
     Options$Mutation$CreateTeam options,
-  ) async => await mutate(options);
+  ) async => await this.mutate(options);
 
   graphql.ObservableQuery<Mutation$CreateTeam> watchMutation$CreateTeam(
     WatchOptions$Mutation$CreateTeam options,
-  ) => watchMutation(options);
+  ) => this.watchMutation(options);
 }
 
 class Mutation$CreateTeam$HookResult {
@@ -1606,25 +1620,32 @@ graphql.ObservableQuery<Mutation$CreateTeam> useWatchMutation$CreateTeam(
 class WidgetOptions$Mutation$CreateTeam
     extends graphql.MutationOptions<Mutation$CreateTeam> {
   WidgetOptions$Mutation$CreateTeam({
-    super.operationName,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    String? operationName,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$CreateTeam? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$CreateTeam? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$CreateTeam>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$CreateTeam(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationCreateTeam,
          parserFn: _parserFn$Mutation$CreateTeam,
        );
@@ -1655,10 +1676,11 @@ typedef Builder$Mutation$CreateTeam =
 class Mutation$CreateTeam$Widget
     extends graphql_flutter.Mutation<Mutation$CreateTeam> {
   Mutation$CreateTeam$Widget({
-    super.key,
+    widgets.Key? key,
     WidgetOptions$Mutation$CreateTeam? options,
     required Builder$Mutation$CreateTeam builder,
   }) : super(
+         key: key,
          options: options ?? WidgetOptions$Mutation$CreateTeam(),
          builder: (run, result) => builder(
            (variables, {optimisticResult, typedOptimisticResult}) => run(
@@ -1732,26 +1754,26 @@ class Mutation$CreateTeam$createTeam {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$name = name;
-    resultData['name'] = l$name;
+    _resultData['name'] = l$name;
     final l$sport = sport;
-    resultData['sport'] = l$sport;
+    _resultData['sport'] = l$sport;
     final l$description = description;
-    resultData['description'] = l$description;
+    _resultData['description'] = l$description;
     final l$joinCode = joinCode;
-    resultData['joinCode'] = l$joinCode;
+    _resultData['joinCode'] = l$joinCode;
     final l$createdAt = createdAt;
-    resultData['createdAt'] = l$createdAt.toIso8601String();
+    _resultData['createdAt'] = l$createdAt.toIso8601String();
     final l$updatedAt = updatedAt;
-    resultData['updatedAt'] = l$updatedAt.toIso8601String();
+    _resultData['updatedAt'] = l$updatedAt.toIso8601String();
     final l$members = members;
-    resultData['members'] = l$members?.map((e) => e.toJson()).toList();
+    _resultData['members'] = l$members?.map((e) => e.toJson()).toList();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -1881,7 +1903,7 @@ abstract class CopyWith$Mutation$CreateTeam$createTeam<TRes> {
         >
       >?,
     )
-    fn,
+    _fn,
   );
 }
 
@@ -1895,7 +1917,6 @@ class _CopyWithImpl$Mutation$CreateTeam$createTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? name = _undefined,
@@ -1936,7 +1957,6 @@ class _CopyWithImpl$Mutation$CreateTeam$createTeam<TRes>
     ),
   );
 
-  @override
   TRes members(
     Iterable<Mutation$CreateTeam$createTeam$members>? Function(
       Iterable<
@@ -1945,9 +1965,9 @@ class _CopyWithImpl$Mutation$CreateTeam$createTeam<TRes>
         >
       >?,
     )
-    fn,
+    _fn,
   ) => call(
-    members: fn(
+    members: _fn(
       _instance.members?.map(
         (e) => CopyWith$Mutation$CreateTeam$createTeam$members(e, (i) => i),
       ),
@@ -1959,9 +1979,8 @@ class _CopyWithStubImpl$Mutation$CreateTeam$createTeam<TRes>
     implements CopyWith$Mutation$CreateTeam$createTeam<TRes> {
   _CopyWithStubImpl$Mutation$CreateTeam$createTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? name,
@@ -1974,8 +1993,7 @@ class _CopyWithStubImpl$Mutation$CreateTeam$createTeam<TRes>
     String? $__typename,
   }) => _res;
 
-  @override
-  members(fn) => _res;
+  members(_fn) => _res;
 }
 
 class Mutation$CreateTeam$createTeam$members {
@@ -2012,16 +2030,16 @@ class Mutation$CreateTeam$createTeam$members {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$userId = userId;
-    resultData['userId'] = l$userId;
+    _resultData['userId'] = l$userId;
     final l$role = role;
-    resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -2117,7 +2135,6 @@ class _CopyWithImpl$Mutation$CreateTeam$createTeam$members<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? userId = _undefined,
@@ -2143,9 +2160,8 @@ class _CopyWithStubImpl$Mutation$CreateTeam$createTeam$members<TRes>
     implements CopyWith$Mutation$CreateTeam$createTeam$members<TRes> {
   _CopyWithStubImpl$Mutation$CreateTeam$createTeam$members(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? userId,
@@ -2231,7 +2247,6 @@ class _CopyWithImpl$Variables$Mutation$AddTeamMember<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? input = _undefined}) => _then(
     Variables$Mutation$AddTeamMember._({
       ..._instance._$data,
@@ -2245,9 +2260,8 @@ class _CopyWithStubImpl$Variables$Mutation$AddTeamMember<TRes>
     implements CopyWith$Variables$Mutation$AddTeamMember<TRes> {
   _CopyWithStubImpl$Variables$Mutation$AddTeamMember(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({Input$AddTeamMemberInput? input}) => _res;
 }
 
@@ -2273,12 +2287,12 @@ class Mutation$AddTeamMember {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$addTeamMember = addTeamMember;
-    resultData['addTeamMember'] = l$addTeamMember.toJson();
+    _resultData['addTeamMember'] = l$addTeamMember.toJson();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -2341,7 +2355,6 @@ class _CopyWithImpl$Mutation$AddTeamMember<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? addTeamMember = _undefined,
     Object? $__typename = _undefined,
@@ -2356,7 +2369,6 @@ class _CopyWithImpl$Mutation$AddTeamMember<TRes>
     ),
   );
 
-  @override
   CopyWith$Mutation$AddTeamMember$addTeamMember<TRes> get addTeamMember {
     final local$addTeamMember = _instance.addTeamMember;
     return CopyWith$Mutation$AddTeamMember$addTeamMember(
@@ -2370,15 +2382,13 @@ class _CopyWithStubImpl$Mutation$AddTeamMember<TRes>
     implements CopyWith$Mutation$AddTeamMember<TRes> {
   _CopyWithStubImpl$Mutation$AddTeamMember(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     Mutation$AddTeamMember$addTeamMember? addTeamMember,
     String? $__typename,
   }) => _res;
 
-  @override
   CopyWith$Mutation$AddTeamMember$addTeamMember<TRes> get addTeamMember =>
       CopyWith$Mutation$AddTeamMember$addTeamMember.stub(_res);
 }
@@ -2480,27 +2490,34 @@ typedef OnMutationCompleted$Mutation$AddTeamMember =
 class Options$Mutation$AddTeamMember
     extends graphql.MutationOptions<Mutation$AddTeamMember> {
   Options$Mutation$AddTeamMember({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$AddTeamMember variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$AddTeamMember? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$AddTeamMember? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$AddTeamMember>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$AddTeamMember(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationAddTeamMember,
          parserFn: _parserFn$Mutation$AddTeamMember,
        );
@@ -2519,22 +2536,31 @@ class Options$Mutation$AddTeamMember
 class WatchOptions$Mutation$AddTeamMember
     extends graphql.WatchQueryOptions<Mutation$AddTeamMember> {
   WatchOptions$Mutation$AddTeamMember({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$AddTeamMember variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$AddTeamMember? typedOptimisticResult,
-    super.context,
-    super.pollInterval,
-    super.eagerlyFetchResults,
-    super.carryForwardDataOnException,
-    super.fetchResults,
+    graphql.Context? context,
+    Duration? pollInterval,
+    bool? eagerlyFetchResults,
+    bool carryForwardDataOnException = true,
+    bool fetchResults = false,
   }) : super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          document: documentNodeMutationAddTeamMember,
+         pollInterval: pollInterval,
+         eagerlyFetchResults: eagerlyFetchResults,
+         carryForwardDataOnException: carryForwardDataOnException,
+         fetchResults: fetchResults,
          parserFn: _parserFn$Mutation$AddTeamMember,
        );
 }
@@ -2542,11 +2568,11 @@ class WatchOptions$Mutation$AddTeamMember
 extension ClientExtension$Mutation$AddTeamMember on graphql.GraphQLClient {
   Future<graphql.QueryResult<Mutation$AddTeamMember>> mutate$AddTeamMember(
     Options$Mutation$AddTeamMember options,
-  ) async => await mutate(options);
+  ) async => await this.mutate(options);
 
   graphql.ObservableQuery<Mutation$AddTeamMember> watchMutation$AddTeamMember(
     WatchOptions$Mutation$AddTeamMember options,
-  ) => watchMutation(options);
+  ) => this.watchMutation(options);
 }
 
 class Mutation$AddTeamMember$HookResult {
@@ -2580,25 +2606,32 @@ graphql.ObservableQuery<Mutation$AddTeamMember> useWatchMutation$AddTeamMember(
 class WidgetOptions$Mutation$AddTeamMember
     extends graphql.MutationOptions<Mutation$AddTeamMember> {
   WidgetOptions$Mutation$AddTeamMember({
-    super.operationName,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    String? operationName,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$AddTeamMember? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$AddTeamMember? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$AddTeamMember>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$AddTeamMember(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationAddTeamMember,
          parserFn: _parserFn$Mutation$AddTeamMember,
        );
@@ -2629,10 +2662,11 @@ typedef Builder$Mutation$AddTeamMember =
 class Mutation$AddTeamMember$Widget
     extends graphql_flutter.Mutation<Mutation$AddTeamMember> {
   Mutation$AddTeamMember$Widget({
-    super.key,
+    widgets.Key? key,
     WidgetOptions$Mutation$AddTeamMember? options,
     required Builder$Mutation$AddTeamMember builder,
   }) : super(
+         key: key,
          options: options ?? WidgetOptions$Mutation$AddTeamMember(),
          builder: (run, result) => builder(
            (variables, {optimisticResult, typedOptimisticResult}) => run(
@@ -2689,20 +2723,20 @@ class Mutation$AddTeamMember$addTeamMember {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$teamId = teamId;
-    resultData['teamId'] = l$teamId;
+    _resultData['teamId'] = l$teamId;
     final l$userId = userId;
-    resultData['userId'] = l$userId;
+    _resultData['userId'] = l$userId;
     final l$role = role;
-    resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$joinedAt = joinedAt;
-    resultData['joinedAt'] = l$joinedAt.toIso8601String();
+    _resultData['joinedAt'] = l$joinedAt.toIso8601String();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -2813,7 +2847,6 @@ class _CopyWithImpl$Mutation$AddTeamMember$addTeamMember<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? teamId = _undefined,
@@ -2847,9 +2880,8 @@ class _CopyWithStubImpl$Mutation$AddTeamMember$addTeamMember<TRes>
     implements CopyWith$Mutation$AddTeamMember$addTeamMember<TRes> {
   _CopyWithStubImpl$Mutation$AddTeamMember$addTeamMember(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? teamId,
@@ -2935,8 +2967,7 @@ class _CopyWithImpl$Variables$Mutation$JoinTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
-  TRes call({Object? joinCode = _undefined}) => _then(
+  TRes call({Object? input = _undefined}) => _then(
     Variables$Mutation$JoinTeam._({
       ..._instance._$data,
       if (input != _undefined && input != null)
@@ -2949,10 +2980,9 @@ class _CopyWithStubImpl$Variables$Mutation$JoinTeam<TRes>
     implements CopyWith$Variables$Mutation$JoinTeam<TRes> {
   _CopyWithStubImpl$Variables$Mutation$JoinTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
-  call({String? joinCode}) => _res;
+  call({Input$JoinTeamInput? input}) => _res;
 }
 
 class Mutation$JoinTeam {
@@ -2974,12 +3004,12 @@ class Mutation$JoinTeam {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$joinTeam = joinTeam;
-    resultData['joinTeam'] = l$joinTeam.toJson();
+    _resultData['joinTeam'] = l$joinTeam.toJson();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -3039,7 +3069,6 @@ class _CopyWithImpl$Mutation$JoinTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? joinTeam = _undefined,
     Object? $__typename = _undefined,
@@ -3054,7 +3083,6 @@ class _CopyWithImpl$Mutation$JoinTeam<TRes>
     ),
   );
 
-  @override
   CopyWith$Mutation$JoinTeam$joinTeam<TRes> get joinTeam {
     final local$joinTeam = _instance.joinTeam;
     return CopyWith$Mutation$JoinTeam$joinTeam(
@@ -3068,12 +3096,10 @@ class _CopyWithStubImpl$Mutation$JoinTeam<TRes>
     implements CopyWith$Mutation$JoinTeam<TRes> {
   _CopyWithStubImpl$Mutation$JoinTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({Mutation$JoinTeam$joinTeam? joinTeam, String? $__typename}) => _res;
 
-  @override
   CopyWith$Mutation$JoinTeam$joinTeam<TRes> get joinTeam =>
       CopyWith$Mutation$JoinTeam$joinTeam.stub(_res);
 }
@@ -3174,27 +3200,34 @@ typedef OnMutationCompleted$Mutation$JoinTeam =
 class Options$Mutation$JoinTeam
     extends graphql.MutationOptions<Mutation$JoinTeam> {
   Options$Mutation$JoinTeam({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$JoinTeam variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$JoinTeam? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$JoinTeam? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$JoinTeam>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$JoinTeam(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationJoinTeam,
          parserFn: _parserFn$Mutation$JoinTeam,
        );
@@ -3213,22 +3246,31 @@ class Options$Mutation$JoinTeam
 class WatchOptions$Mutation$JoinTeam
     extends graphql.WatchQueryOptions<Mutation$JoinTeam> {
   WatchOptions$Mutation$JoinTeam({
-    super.operationName,
+    String? operationName,
     required Variables$Mutation$JoinTeam variables,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$JoinTeam? typedOptimisticResult,
-    super.context,
-    super.pollInterval,
-    super.eagerlyFetchResults,
-    super.carryForwardDataOnException,
-    super.fetchResults,
+    graphql.Context? context,
+    Duration? pollInterval,
+    bool? eagerlyFetchResults,
+    bool carryForwardDataOnException = true,
+    bool fetchResults = false,
   }) : super(
          variables: variables.toJson(),
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          document: documentNodeMutationJoinTeam,
+         pollInterval: pollInterval,
+         eagerlyFetchResults: eagerlyFetchResults,
+         carryForwardDataOnException: carryForwardDataOnException,
+         fetchResults: fetchResults,
          parserFn: _parserFn$Mutation$JoinTeam,
        );
 }
@@ -3236,11 +3278,11 @@ class WatchOptions$Mutation$JoinTeam
 extension ClientExtension$Mutation$JoinTeam on graphql.GraphQLClient {
   Future<graphql.QueryResult<Mutation$JoinTeam>> mutate$JoinTeam(
     Options$Mutation$JoinTeam options,
-  ) async => await mutate(options);
+  ) async => await this.mutate(options);
 
   graphql.ObservableQuery<Mutation$JoinTeam> watchMutation$JoinTeam(
     WatchOptions$Mutation$JoinTeam options,
-  ) => watchMutation(options);
+  ) => this.watchMutation(options);
 }
 
 class Mutation$JoinTeam$HookResult {
@@ -3274,25 +3316,32 @@ graphql.ObservableQuery<Mutation$JoinTeam> useWatchMutation$JoinTeam(
 class WidgetOptions$Mutation$JoinTeam
     extends graphql.MutationOptions<Mutation$JoinTeam> {
   WidgetOptions$Mutation$JoinTeam({
-    super.operationName,
-    super.fetchPolicy,
-    super.errorPolicy,
-    super.cacheRereadPolicy,
+    String? operationName,
+    graphql.FetchPolicy? fetchPolicy,
+    graphql.ErrorPolicy? errorPolicy,
+    graphql.CacheRereadPolicy? cacheRereadPolicy,
     Object? optimisticResult,
     Mutation$JoinTeam? typedOptimisticResult,
-    super.context,
+    graphql.Context? context,
     OnMutationCompleted$Mutation$JoinTeam? onCompleted,
-    super.update,
-    super.onError,
+    graphql.OnMutationUpdate<Mutation$JoinTeam>? update,
+    graphql.OnError? onError,
   }) : onCompletedWithParsed = onCompleted,
        super(
+         operationName: operationName,
+         fetchPolicy: fetchPolicy,
+         errorPolicy: errorPolicy,
+         cacheRereadPolicy: cacheRereadPolicy,
          optimisticResult: optimisticResult ?? typedOptimisticResult?.toJson(),
+         context: context,
          onCompleted: onCompleted == null
              ? null
              : (data) => onCompleted(
                  data,
                  data == null ? null : _parserFn$Mutation$JoinTeam(data),
                ),
+         update: update,
+         onError: onError,
          document: documentNodeMutationJoinTeam,
          parserFn: _parserFn$Mutation$JoinTeam,
        );
@@ -3323,10 +3372,11 @@ typedef Builder$Mutation$JoinTeam =
 class Mutation$JoinTeam$Widget
     extends graphql_flutter.Mutation<Mutation$JoinTeam> {
   Mutation$JoinTeam$Widget({
-    super.key,
+    widgets.Key? key,
     WidgetOptions$Mutation$JoinTeam? options,
     required Builder$Mutation$JoinTeam builder,
   }) : super(
+         key: key,
          options: options ?? WidgetOptions$Mutation$JoinTeam(),
          builder: (run, result) => builder(
            (variables, {optimisticResult, typedOptimisticResult}) => run(
@@ -3381,20 +3431,20 @@ class Mutation$JoinTeam$joinTeam {
   final String $__typename;
 
   Map<String, dynamic> toJson() {
-    final resultData = <String, dynamic>{};
+    final _resultData = <String, dynamic>{};
     final l$id = id;
-    resultData['id'] = l$id;
+    _resultData['id'] = l$id;
     final l$teamId = teamId;
-    resultData['teamId'] = l$teamId;
+    _resultData['teamId'] = l$teamId;
     final l$userId = userId;
-    resultData['userId'] = l$userId;
+    _resultData['userId'] = l$userId;
     final l$role = role;
-    resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
+    _resultData['role'] = l$role.map((e) => toJson$Enum$MemberRole(e)).toList();
     final l$joinedAt = joinedAt;
-    resultData['joinedAt'] = l$joinedAt.toIso8601String();
+    _resultData['joinedAt'] = l$joinedAt.toIso8601String();
     final l$$__typename = $__typename;
-    resultData['__typename'] = l$$__typename;
-    return resultData;
+    _resultData['__typename'] = l$$__typename;
+    return _resultData;
   }
 
   @override
@@ -3500,7 +3550,6 @@ class _CopyWithImpl$Mutation$JoinTeam$joinTeam<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? id = _undefined,
     Object? teamId = _undefined,
@@ -3534,9 +3583,8 @@ class _CopyWithStubImpl$Mutation$JoinTeam$joinTeam<TRes>
     implements CopyWith$Mutation$JoinTeam$joinTeam<TRes> {
   _CopyWithStubImpl$Mutation$JoinTeam$joinTeam(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? id,
     String? teamId,

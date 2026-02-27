@@ -6,7 +6,7 @@ class HomePage extends StatefulWidget {
   final String email;
 
   @override
-  State<HomePage> createState() => HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {

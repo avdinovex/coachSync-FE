@@ -156,7 +156,6 @@ class _CopyWithImpl$Input$AddTeamMemberInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? email = _undefined,
     Object? role = _undefined,
@@ -178,10 +177,135 @@ class _CopyWithStubImpl$Input$AddTeamMemberInput<TRes>
     implements CopyWith$Input$AddTeamMemberInput<TRes> {
   _CopyWithStubImpl$Input$AddTeamMemberInput(this._res);
 
-  final TRes _res;
+  TRes _res;
+
+  call({
+    String? email,
+    List<Enum$MemberRole>? role,
+    String? teamId,
+    String? userId,
+  }) => _res;
+}
+
+class Input$CreateChildProfileInput {
+  factory Input$CreateChildProfileInput({
+    required String firstName,
+    String? lastName,
+  }) => Input$CreateChildProfileInput._({
+    r'firstName': firstName,
+    if (lastName != null) r'lastName': lastName,
+  });
+
+  Input$CreateChildProfileInput._(this._$data);
+
+  factory Input$CreateChildProfileInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$firstName = data['firstName'];
+    result$data['firstName'] = (l$firstName as String);
+    if (data.containsKey('lastName')) {
+      final l$lastName = data['lastName'];
+      result$data['lastName'] = (l$lastName as String?);
+    }
+    return Input$CreateChildProfileInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get firstName => (_$data['firstName'] as String);
+
+  String? get lastName => (_$data['lastName'] as String?);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$firstName = firstName;
+    result$data['firstName'] = l$firstName;
+    if (_$data.containsKey('lastName')) {
+      final l$lastName = lastName;
+      result$data['lastName'] = l$lastName;
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$CreateChildProfileInput<Input$CreateChildProfileInput>
+  get copyWith => CopyWith$Input$CreateChildProfileInput(this, (i) => i);
 
   @override
-  call({List<Enum$MemberRole>? role, String? teamId, String? userId}) => _res;
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$CreateChildProfileInput ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$firstName = firstName;
+    final lOther$firstName = other.firstName;
+    if (l$firstName != lOther$firstName) {
+      return false;
+    }
+    final l$lastName = lastName;
+    final lOther$lastName = other.lastName;
+    if (_$data.containsKey('lastName') !=
+        other._$data.containsKey('lastName')) {
+      return false;
+    }
+    if (l$lastName != lOther$lastName) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$firstName = firstName;
+    final l$lastName = lastName;
+    return Object.hashAll([
+      l$firstName,
+      _$data.containsKey('lastName') ? l$lastName : const {},
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$CreateChildProfileInput<TRes> {
+  factory CopyWith$Input$CreateChildProfileInput(
+    Input$CreateChildProfileInput instance,
+    TRes Function(Input$CreateChildProfileInput) then,
+  ) = _CopyWithImpl$Input$CreateChildProfileInput;
+
+  factory CopyWith$Input$CreateChildProfileInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$CreateChildProfileInput;
+
+  TRes call({String? firstName, String? lastName});
+}
+
+class _CopyWithImpl$Input$CreateChildProfileInput<TRes>
+    implements CopyWith$Input$CreateChildProfileInput<TRes> {
+  _CopyWithImpl$Input$CreateChildProfileInput(this._instance, this._then);
+
+  final Input$CreateChildProfileInput _instance;
+
+  final TRes Function(Input$CreateChildProfileInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({Object? firstName = _undefined, Object? lastName = _undefined}) =>
+      _then(
+        Input$CreateChildProfileInput._({
+          ..._instance._$data,
+          if (firstName != _undefined && firstName != null)
+            'firstName': (firstName as String),
+          if (lastName != _undefined) 'lastName': (lastName as String?),
+        }),
+      );
+}
+
+class _CopyWithStubImpl$Input$CreateChildProfileInput<TRes>
+    implements CopyWith$Input$CreateChildProfileInput<TRes> {
+  _CopyWithStubImpl$Input$CreateChildProfileInput(this._res);
+
+  TRes _res;
+
+  call({String? firstName, String? lastName}) => _res;
 }
 
 class Input$CreateEventInput {
@@ -384,7 +508,6 @@ class _CopyWithImpl$Input$CreateEventInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? description = _undefined,
     Object? endTime = _undefined,
@@ -413,9 +536,8 @@ class _CopyWithStubImpl$Input$CreateEventInput<TRes>
     implements CopyWith$Input$CreateEventInput<TRes> {
   _CopyWithStubImpl$Input$CreateEventInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? description,
     DateTime? endTime,
@@ -500,7 +622,6 @@ class _CopyWithImpl$Input$CreateNotificationInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? exampleField = _undefined}) => _then(
     Input$CreateNotificationInput._({
       ..._instance._$data,
@@ -514,9 +635,8 @@ class _CopyWithStubImpl$Input$CreateNotificationInput<TRes>
     implements CopyWith$Input$CreateNotificationInput<TRes> {
   _CopyWithStubImpl$Input$CreateNotificationInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({int? exampleField}) => _res;
 }
 
@@ -634,27 +754,29 @@ class _CopyWithImpl$Input$CreateRsvpInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
-  TRes call({Object? eventId = _undefined, Object? status = _undefined}) =>
-      _then(
-        Input$CreateRsvpInput._({
-          ..._instance._$data,
-          if (eventId != _undefined && eventId != null)
-            'eventId': (eventId as String),
-          if (status != _undefined && status != null)
-            'status': (status as Enum$RsvpStatus),
-        }),
-      );
+  TRes call({
+    Object? eventId = _undefined,
+    Object? status = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$CreateRsvpInput._({
+      ..._instance._$data,
+      if (eventId != _undefined && eventId != null)
+        'eventId': (eventId as String),
+      if (status != _undefined && status != null)
+        'status': (status as Enum$RsvpStatus),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$CreateRsvpInput<TRes>
     implements CopyWith$Input$CreateRsvpInput<TRes> {
   _CopyWithStubImpl$Input$CreateRsvpInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
-  call({String? eventId, Enum$RsvpStatus? status}) => _res;
+  call({String? eventId, Enum$RsvpStatus? status, String? userId}) => _res;
 }
 
 class Input$CreateTeamInput {
@@ -772,7 +894,6 @@ class _CopyWithImpl$Input$CreateTeamInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? description = _undefined,
     Object? name = _undefined,
@@ -791,9 +912,8 @@ class _CopyWithStubImpl$Input$CreateTeamInput<TRes>
     implements CopyWith$Input$CreateTeamInput<TRes> {
   _CopyWithStubImpl$Input$CreateTeamInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({String? description, String? name, String? sport}) => _res;
 }
 
@@ -1106,7 +1226,6 @@ class _CopyWithImpl$Input$LoginInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? email = _undefined, Object? password = _undefined}) =>
       _then(
         Input$LoginInput._({
@@ -1122,9 +1241,8 @@ class _CopyWithStubImpl$Input$LoginInput<TRes>
     implements CopyWith$Input$LoginInput<TRes> {
   _CopyWithStubImpl$Input$LoginInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({String? email, String? password}) => _res;
 }
 
@@ -1337,7 +1455,7 @@ abstract class CopyWith$Input$RecordGameStatsInput<TRes> {
         CopyWith$Input$RecordPlayerStatInput<Input$RecordPlayerStatInput>
       >?,
     )
-    fn,
+    _fn,
   );
 }
 
@@ -1351,7 +1469,6 @@ class _CopyWithImpl$Input$RecordGameStatsInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? eventId = _undefined,
     Object? finalScore = _undefined,
@@ -1373,16 +1490,15 @@ class _CopyWithImpl$Input$RecordGameStatsInput<TRes>
     }),
   );
 
-  @override
   TRes playerStats(
     Iterable<Input$RecordPlayerStatInput>? Function(
       Iterable<
         CopyWith$Input$RecordPlayerStatInput<Input$RecordPlayerStatInput>
       >?,
     )
-    fn,
+    _fn,
   ) => call(
-    playerStats: fn(
+    playerStats: _fn(
       _instance.playerStats?.map(
         (e) => CopyWith$Input$RecordPlayerStatInput(e, (i) => i),
       ),
@@ -1394,9 +1510,8 @@ class _CopyWithStubImpl$Input$RecordGameStatsInput<TRes>
     implements CopyWith$Input$RecordGameStatsInput<TRes> {
   _CopyWithStubImpl$Input$RecordGameStatsInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? eventId,
     String? finalScore,
@@ -1406,8 +1521,7 @@ class _CopyWithStubImpl$Input$RecordGameStatsInput<TRes>
     String? teamId,
   }) => _res;
 
-  @override
-  playerStats(fn) => _res;
+  playerStats(_fn) => _res;
 }
 
 class Input$RecordPlayerStatInput {
@@ -1584,7 +1698,6 @@ class _CopyWithImpl$Input$RecordPlayerStatInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? assists = _undefined,
     Object? minutesPlayed = _undefined,
@@ -1607,9 +1720,8 @@ class _CopyWithStubImpl$Input$RecordPlayerStatInput<TRes>
     implements CopyWith$Input$RecordPlayerStatInput<TRes> {
   _CopyWithStubImpl$Input$RecordPlayerStatInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     int? assists,
     int? minutesPlayed,
@@ -1733,27 +1845,28 @@ class _CopyWithImpl$Input$SendMessageInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
-  TRes call({Object? content = _undefined, Object? teamId = _undefined}) =>
-      _then(
-        Input$SendMessageInput._({
-          ..._instance._$data,
-          if (content != _undefined && content != null)
-            'content': (content as String),
-          if (teamId != _undefined && teamId != null)
-            'teamId': (teamId as String),
-        }),
-      );
+  TRes call({
+    Object? content = _undefined,
+    Object? teamId = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$SendMessageInput._({
+      ..._instance._$data,
+      if (content != _undefined && content != null)
+        'content': (content as String),
+      if (teamId != _undefined && teamId != null) 'teamId': (teamId as String),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$SendMessageInput<TRes>
     implements CopyWith$Input$SendMessageInput<TRes> {
   _CopyWithStubImpl$Input$SendMessageInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
-  call({String? content, String? teamId}) => _res;
+  call({String? content, String? teamId, String? userId}) => _res;
 }
 
 class Input$SignupInput {
@@ -1926,7 +2039,6 @@ class _CopyWithImpl$Input$SignupInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? email = _undefined,
     Object? firstName = _undefined,
@@ -1950,9 +2062,8 @@ class _CopyWithStubImpl$Input$SignupInput<TRes>
     implements CopyWith$Input$SignupInput<TRes> {
   _CopyWithStubImpl$Input$SignupInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? email,
     String? firstName,
@@ -2214,7 +2325,6 @@ class _CopyWithImpl$Input$UpdateEventInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? description = _undefined,
     Object? endTime = _undefined,
@@ -2243,9 +2353,8 @@ class _CopyWithStubImpl$Input$UpdateEventInput<TRes>
     implements CopyWith$Input$UpdateEventInput<TRes> {
   _CopyWithStubImpl$Input$UpdateEventInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? description,
     DateTime? endTime,
@@ -2357,7 +2466,6 @@ class _CopyWithImpl$Input$UpdateNotificationInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? exampleField = _undefined, Object? id = _undefined}) =>
       _then(
         Input$UpdateNotificationInput._({
@@ -2373,9 +2481,8 @@ class _CopyWithStubImpl$Input$UpdateNotificationInput<TRes>
     implements CopyWith$Input$UpdateNotificationInput<TRes> {
   _CopyWithStubImpl$Input$UpdateNotificationInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({int? exampleField, int? id}) => _res;
 }
 
@@ -2486,7 +2593,6 @@ class _CopyWithImpl$Input$UpdateProfileInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({Object? firstName = _undefined, Object? lastName = _undefined}) =>
       _then(
         Input$UpdateProfileInput._({
@@ -2501,9 +2607,8 @@ class _CopyWithStubImpl$Input$UpdateProfileInput<TRes>
     implements CopyWith$Input$UpdateProfileInput<TRes> {
   _CopyWithStubImpl$Input$UpdateProfileInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({String? firstName, String? lastName}) => _res;
 }
 
@@ -2621,27 +2726,29 @@ class _CopyWithImpl$Input$UpdateRsvpInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
-  TRes call({Object? eventId = _undefined, Object? status = _undefined}) =>
-      _then(
-        Input$UpdateRsvpInput._({
-          ..._instance._$data,
-          if (eventId != _undefined && eventId != null)
-            'eventId': (eventId as String),
-          if (status != _undefined && status != null)
-            'status': (status as Enum$RsvpStatus),
-        }),
-      );
+  TRes call({
+    Object? eventId = _undefined,
+    Object? status = _undefined,
+    Object? userId = _undefined,
+  }) => _then(
+    Input$UpdateRsvpInput._({
+      ..._instance._$data,
+      if (eventId != _undefined && eventId != null)
+        'eventId': (eventId as String),
+      if (status != _undefined && status != null)
+        'status': (status as Enum$RsvpStatus),
+      if (userId != _undefined) 'userId': (userId as String?),
+    }),
+  );
 }
 
 class _CopyWithStubImpl$Input$UpdateRsvpInput<TRes>
     implements CopyWith$Input$UpdateRsvpInput<TRes> {
   _CopyWithStubImpl$Input$UpdateRsvpInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
-  call({String? eventId, Enum$RsvpStatus? status}) => _res;
+  call({String? eventId, Enum$RsvpStatus? status, String? userId}) => _res;
 }
 
 class Input$UpdateTeamInput {
@@ -2860,7 +2967,6 @@ class _CopyWithImpl$Input$UpdateTeamInput<TRes>
 
   static const _undefined = <dynamic, dynamic>{};
 
-  @override
   TRes call({
     Object? description = _undefined,
     Object? id = _undefined,
@@ -2885,9 +2991,8 @@ class _CopyWithStubImpl$Input$UpdateTeamInput<TRes>
     implements CopyWith$Input$UpdateTeamInput<TRes> {
   _CopyWithStubImpl$Input$UpdateTeamInput(this._res);
 
-  final TRes _res;
+  TRes _res;
 
-  @override
   call({
     String? description,
     String? id,

@@ -6,7 +6,6 @@ import '../../../team/domain/models/team.dart';
 import '../../../chat/data/chat_service.dart';
 import '../../../chat/presentation/pages/team_chat_page.dart';
 import '../../../../core/services/auth_service.dart';
-import 'home_page.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -167,12 +166,6 @@ class _MessagePageState extends State<MessagePage> {
     );
     // Refresh unread counts when returning from chat
     _refreshUnreadCounts();
-    // If the result contains a navigateToEvent key, switch to Events tab
-    if (result is Map && result['navigateToEvent'] != null) {
-      final eventId = result['navigateToEvent'] as String;
-      final homeState = context.findAncestorStateOfType<HomePageState>();
-      homeState?.navigateToEvent(eventId);
-    }
   }
 }
 
