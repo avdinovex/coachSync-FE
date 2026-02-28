@@ -1,8 +1,10 @@
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'signup_page.dart';
 import 'package:coachsync/core/services/auth_service.dart';
+import 'login_success_page.dart';
 import 'package:coachsync/core/services/google_auth_service.dart';
 import 'package:coachsync/features/home/presentation/pages/home_page.dart';
 
@@ -19,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
   String? _error;
-  bool _obscurePassword = true;
   final _googleAuthService = GoogleAuthService();
 
   Future<void> _handleGoogleSignIn() async {
@@ -44,9 +45,24 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      setState(() {
+        // Clean up error messages for better UX
+        String errorMsg = e.toString().replaceFirst('AuthException: ', '');
+        if (errorMsg.contains('TimeoutException') ||
+            errorMsg.contains('No stream event')) {
+          errorMsg = 'Connection timeout. Please check your network.';
+        } else if (errorMsg.contains('SocketException') ||
+            errorMsg.contains('connection abort')) {
+          errorMsg = 'Cannot connect to server. Is the backend running?';
+        }
+        _error = errorMsg;
+      });
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -69,15 +85,24 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } catch (e) {
+      setState(() {
+        // Clean up error messages for better UX
+        String errorMsg = e.toString().replaceFirst('AuthException: ', '');
+        if (errorMsg.contains('TimeoutException') ||
+            errorMsg.contains('No stream event')) {
+          errorMsg = 'Connection timeout. Please check your network.';
+        } else if (errorMsg.contains('SocketException') ||
+            errorMsg.contains('connection abort')) {
+          errorMsg = 'Cannot connect to server. Is the backend running?';
+        }
+        _error = errorMsg;
+      });
+    } finally {
       if (mounted) {
         setState(() {
-           _error = e.toString().contains('Exception:') 
-              ? e.toString().split('Exception:')[1].trim()
-              : 'Login failed. Please check your credentials.';
+          _loading = false;
         });
       }
-    } finally {
-      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -88,341 +113,320 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  InputDecoration _underlinedDecoration({required String label, String? hint}) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      hintStyle: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 13),
+      labelStyle: GoogleFonts.inter(color: Colors.grey.shade300, fontSize: 14),
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      filled: false,
+      enabledBorder: BorderSide(
+        color: Colors.grey.shade300,
+        width: 1.2,
+      ).toUnderlineInputBorder(),
+      focusedBorder: const BorderSide(
+        color: Colors.white,
+        width: 1.4,
+      ).toUnderlineInputBorder(),
+      contentPadding: const EdgeInsets.only(top: 2, bottom: 6),
+    );
+  }
+
+  Widget _socialCircle({required Widget child, VoidCallback? onPressed}) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(onPressed: onPressed, icon: child, splashRadius: 22),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Use layout builder to make spacing responsive to screen height
+    final interTheme = Theme.of(context).copyWith(
+      textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
+    );
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final topPadding = math.min(44.0, math.max(24.0, screenHeight * 0.05));
+    final titleGap = math.min(72.0, math.max(48.0, screenHeight * 0.09));
+    final afterLoginGap = math.min(58.0, math.max(34.0, screenHeight * 0.075));
+    final afterSocialGap = math.min(72.0, math.max(42.0, screenHeight * 0.1));
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final h = constraints.maxHeight;
-            
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top Arc Decoration
-                    SizedBox(height: h * 0.05), // Top spacing
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 40,
-                      child: CustomPaint(painter: _DashedArcPainter()),
-                    ),
-                    
-                    SizedBox(height: h * 0.05),
-
-                    // Title
-                    Text(
-                      'Login',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 48,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -1.0,
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.08),
-
-                    // Email Field
-                    _buildLabel('Email'),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      cursorColor: Colors.white,
-                      decoration: _inputDecoration(
-                        hint: 'keithbrooks@gmail.com',
-                      ),
-                      validator: (value) => value!.isEmpty ? 'Enter email' : null,
-                    ),
-
-                    SizedBox(height: h * 0.04),
-
-                    // Password Field
-                    _buildLabel('Password'),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 2, // Spacing for dots
-                      ),
-                      cursorColor: Colors.white,
-                      decoration: _inputDecoration(
-                        hint: '•••••••••••••',
-                      ).copyWith(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                        ),
-                      ),
-                      validator: (value) => value!.isEmpty ? 'Enter password' : null,
-                    ),
-
-                    // Error Message
-                    if (_error != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 13),
-                        ),
-                      ),
-
-                    SizedBox(height: h * 0.05),
-
-                    // Login Button (Right Aligned)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: _loading ? null : _login,
-                        child: _loading 
-                          ? const SizedBox(
-                              width: 24, 
-                              height: 24, 
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Login',
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.play_arrow, color: Colors.white, size: 24)
-                              ],
+        child: Theme(
+          data: interTheme,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(top: topPadding, bottom: 20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: CustomPaint(painter: _TopDashedArcPainter()),
+                  ),
+                  const SizedBox(height: 22),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Login',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 60,
+                                fontWeight: FontWeight.w700,
+                                height: 0.95,
+                              ),
                             ),
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.12),
-
-                    // Footer Section (Social + Sign Up)
-                    Text(
-                      'Or login via',
-                      style: GoogleFonts.inter(
-                        color: Colors.grey[500],
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        _SocialButton(
-                          icon: Icons.facebook,
-                          onTap: () {},
-                        ),
-                        const SizedBox(width: 16),
-                        _SocialButton(
-                          assetIcon: 'G', 
-                          isText: true,
-                          onTap: _handleGoogleSignIn,
-                        ),
-                        const SizedBox(width: 16),
-                        _SocialButton(
-                          icon: Icons.apple,
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: h * 0.08),
-
-                    // Sign Up Link
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Dont have an account?',
-                            style: GoogleFonts.inter(
-                              color: Colors.grey[400],
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const SignUpPage()),
-                              );
-                            },
-                            child: Text(
-                              'Sign Up',
+                            SizedBox(height: titleGap),
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
                               style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.white,
+                              ),
+                              cursorColor: Colors.white,
+                              decoration: _underlinedDecoration(
+                                label: 'Email',
+                                hint: 'keithbrooks@gmail.com',
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 18),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                              cursorColor: Colors.white,
+                              decoration: _underlinedDecoration(
+                                label: 'Password',
+                                hint: '•••••••••••',
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            if (_error != null) ...[
+                              Text(
+                                _error!,
+                                style: GoogleFonts.inter(
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: _loading
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : TextButton.icon(
+                                      onPressed: _login,
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.grey.shade300,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                        ),
+                                      ),
+                                      iconAlignment: IconAlignment.end,
+                                      label: Text(
+                                        'Login',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      icon: const Icon(
+                                        Icons.play_arrow_rounded,
+                                        size: 17,
+                                      ),
+                                    ),
+                            ),
+                            SizedBox(height: afterLoginGap),
+                            Text(
+                              'Or login via',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey.shade400,
+                                fontSize: 11,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                _socialCircle(
+                                  child: const Icon(
+                                    Icons.facebook,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                const SizedBox(width: 8),
+                                _socialCircle(
+                                  child: Text(
+                                    'G',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.black,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w700,
+                                      height: 1,
+                                    ),
+                                  ),
+                                  onPressed: _loading
+                                      ? null
+                                      : _handleGoogleSignIn,
+                                ),
+                                const SizedBox(width: 8),
+                                _socialCircle(
+                                  child: const Icon(
+                                    Icons.apple,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: afterSocialGap),
+                            Text(
+                              'Dont have an account?',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey.shade300,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SignUpPage(),
+                                  ),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                ),
+                              ),
+                              child: Text(
+                                'Sign Up',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          color: Colors.grey[400],
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({required String hint}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.grey[700], fontSize: 18),
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-      ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 1.5),
-      ),
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  final IconData? icon;
-  final String? assetIcon;
-  final bool isText;
-  final VoidCallback onTap;
-
-  const _SocialButton({
-    this.icon,
-    this.assetIcon,
-    this.isText = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Center(
-          child: isText
-            ? Text(
-                assetIcon!,
-                style: GoogleFonts.inter(
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : Icon(icon, color: Colors.black, size: 28),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _DashedArcPainter extends CustomPainter {
-  const _DashedArcPainter();
+extension on BorderSide {
+  UnderlineInputBorder toUnderlineInputBorder() {
+    return UnderlineInputBorder(borderSide: this);
+  }
+}
+
+class _TopDashedArcPainter extends CustomPainter {
+  const _TopDashedArcPainter();
+
+  Offset _pointOnEllipse(Rect rect, double angle) {
+    return Offset(
+      rect.center.dx + rect.width / 2 * math.cos(angle),
+      rect.center.dy + rect.height / 2 * math.sin(angle),
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final path = Path();
-    // Create a gentle arc
-    path.moveTo(0, size.height);
-    path.quadraticBezierTo(
-      size.width / 2, 
-      0, 
-      size.width, 
-      size.height
-    );
-
-
-    
-    // Approximate path metrics
-    for (var i = 0; i < 10; i++) {
-        // This is a simplified visual representation
-        // For production dashed paths, use PathMetric
-    }
-    
-    // Drawing a simple arc with dashes
-     const int dashCount = 8;
-     const double startAngle = 3.4; // Approximated for visual
-     const double sweepAngle = 2.6;
-     
-     final rect = Rect.fromCircle(
-       center: Offset(size.width / 2, size.height * 4), 
-       radius: size.width * 1.5
-     );
-
-     for(int i = 0; i < dashCount; i++) {
-        double start = startAngle + (sweepAngle / dashCount) * i;
-        double seg = (sweepAngle / dashCount) * 0.6;
-        canvas.drawArc(rect, -start, -seg, false, paint);
-     }
-
-     // Draw arrows roughly at edges
-     _drawArrow(canvas, Offset(20, size.height - 5), true);
-     _drawArrow(canvas, Offset(size.width - 20, size.height - 5), false);
-  }
-  
-  void _drawArrow(Canvas canvas, Offset pos, bool left) {
-      final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2
+      ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-      
-      final dx = left ? 6.0 : -6.0;
-      canvas.drawLine(pos, Offset(pos.dx + dx, pos.dy - 4), paint);
-      canvas.drawLine(pos, Offset(pos.dx + dx, pos.dy + 4), paint);
+
+    final arcRect = Rect.fromCenter(
+      center: Offset(size.width / 2, size.height + 28),
+      width: size.width + 30,
+      height: 88,
+    );
+
+    const start = math.pi;
+    const sweep = math.pi;
+    const dashCount = 8;
+    const gapSweep = 0.14;
+    final dashSweep = (sweep - (gapSweep * (dashCount - 1))) / dashCount;
+
+    for (var index = 0; index < dashCount; index++) {
+      final segmentStart = start + index * (dashSweep + gapSweep);
+      canvas.drawArc(arcRect, segmentStart, dashSweep, false, paint);
+    }
+
+    final iconPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        text: '➜',
+        style: GoogleFonts.inter(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    )..layout();
+
+    final leftArrowAngle = start + (dashSweep + gapSweep) + (dashSweep / 2);
+    final rightArrowAngle =
+        start + sweep - (dashSweep + gapSweep) - (dashSweep / 2);
+
+    final leftPoint = _pointOnEllipse(arcRect, leftArrowAngle);
+    final rightPoint = _pointOnEllipse(arcRect, rightArrowAngle);
+
+    iconPainter.paint(
+      canvas,
+      Offset(
+        leftPoint.dx - iconPainter.width / 2,
+        leftPoint.dy - iconPainter.height / 2 - 1,
+      ),
+    );
+    iconPainter.paint(
+      canvas,
+      Offset(
+        rightPoint.dx - iconPainter.width / 2,
+        rightPoint.dy - iconPainter.height / 2 - 1,
+      ),
+    );
   }
 
   @override
