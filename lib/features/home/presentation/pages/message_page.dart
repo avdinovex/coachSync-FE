@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../team/data/team_service.dart';
@@ -73,29 +74,85 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Header ──
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: Text(
+            'Messages',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Team conversations',
+            style: GoogleFonts.inter(
+              color: Colors.grey.shade500,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // ── Content ──
+        Expanded(child: _buildBody()),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
     if (_isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
       );
     }
 
     if (_error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-              const SizedBox(height: 12),
-              Text(
-                'Failed to load teams',
-                style: TextStyle(color: Colors.grey[400], fontSize: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(Icons.wifi_off_rounded, size: 40, color: Colors.red.shade300),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadTeams,
-                child: const Text('Retry'),
+              Text(
+                'Couldn\'t load chats',
+                style: GoogleFonts.inter(color: Colors.grey.shade300, fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Check your connection and try again',
+                style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: _loadTeams,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A2A),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF3A3A3A)),
+                  ),
+                  child: Text('Retry', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                ),
               ),
             ],
           ),
@@ -108,20 +165,24 @@ class _MessagePageState extends State<MessagePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey[700]),
-            const SizedBox(height: 16),
-            Text(
-              'No team chats yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[500],
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF2A2A2A)),
               ),
+              child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'No conversations yet',
+              style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade400),
             ),
             const SizedBox(height: 8),
             Text(
               'Join or create a team to start chatting',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade600),
             ),
           ],
         ),
@@ -131,15 +192,10 @@ class _MessagePageState extends State<MessagePage> {
     return RefreshIndicator(
       onRefresh: _loadTeams,
       color: Colors.white,
-      backgroundColor: Colors.grey[800],
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      backgroundColor: const Color(0xFF2A2A2A),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         itemCount: _teams.length,
-        separatorBuilder: (_, __) => Divider(
-          color: Colors.grey[850],
-          height: 1,
-          indent: 76,
-        ),
         itemBuilder: (context, index) {
           final team = _teams[index];
           final unreadInfo = _unreadCounts[team.id];
@@ -188,85 +244,135 @@ class _TeamChatTile extends StatelessWidget {
     final hasUnread = unreadInfo != null && unreadInfo!.count > 0;
     final preview = unreadInfo?.lastMessagePreview(currentUserId);
     final lastTime = unreadInfo?.lastMessageTime;
+    final sportColor = _sportColor(team.sport);
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      leading: CircleAvatar(
-        radius: 26,
-        backgroundColor: _sportColor(team.sport),
-        child: Text(
-          initial,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              team.name,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: hasUnread ? FontWeight.bold : FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: hasUnread ? const Color(0xFF1A1A1A) : const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hasUnread ? sportColor.withOpacity(0.3) : const Color(0xFF222222),
+              width: hasUnread ? 1.2 : 0.8,
             ),
           ),
-          if (lastTime != null)
-            Text(
-              _formatTime(lastTime),
-              style: TextStyle(
-                color: hasUnread ? const Color(0xFF25D366) : Colors.grey[500],
-                fontSize: 12,
-                fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-        ],
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                preview ?? '${team.sport} \u2022 ${team.memberCount} member${team.memberCount == 1 ? '' : 's'}',
-                style: TextStyle(
-                  color: hasUnread ? Colors.grey[300] : Colors.grey[500],
-                  fontSize: 13,
-                  fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (hasUnread) ...[
-              const SizedBox(width: 8),
+          child: Row(
+            children: [
+              // ── Avatar ──
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF25D366),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [sportColor, sportColor.withOpacity(0.6)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: sportColor.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                constraints: const BoxConstraints(minWidth: 22),
-                child: Text(
-                  unreadInfo!.count > 99 ? '99+' : '${unreadInfo!.count}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                child: Center(
+                  child: Text(
+                    initial,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(width: 14),
+
+              // ── Content ──
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Team name + time
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            team.name,
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (lastTime != null)
+                          Text(
+                            _formatTime(lastTime),
+                            style: GoogleFonts.inter(
+                              color: hasUnread ? sportColor : Colors.grey.shade600,
+                              fontSize: 11,
+                              fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    // Preview + badge
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            preview ?? '${team.sport} · ${team.memberCount} member${team.memberCount == 1 ? '' : 's'}',
+                            style: GoogleFonts.inter(
+                              color: hasUnread ? Colors.grey.shade300 : Colors.grey.shade600,
+                              fontSize: 13,
+                              fontWeight: hasUnread ? FontWeight.w500 : FontWeight.w400,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (hasUnread) ...[
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: sportColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(minWidth: 24),
+                            child: Text(
+                              unreadInfo!.count > 99 ? '99+' : '${unreadInfo!.count}',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Chevron ──
+              const SizedBox(width: 8),
+              Icon(Icons.chevron_right_rounded, color: Colors.grey.shade700, size: 20),
             ],
-          ],
+          ),
         ),
       ),
-      onTap: onTap,
     );
   }
 
@@ -275,8 +381,8 @@ class _TeamChatTile extends StatelessWidget {
     final diff = now.difference(time);
 
     if (diff.inMinutes < 1) return 'now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
     if (diff.inDays == 1) return 'Yesterday';
     if (diff.inDays < 7) return DateFormat('EEE').format(time);
     return DateFormat('MM/dd').format(time);
@@ -284,14 +390,14 @@ class _TeamChatTile extends StatelessWidget {
 
   Color _sportColor(String sport) {
     final lower = sport.toLowerCase();
-    if (lower.contains('basket')) return Colors.orange[700]!;
-    if (lower.contains('soccer') || lower.contains('football')) {
-      return Colors.green[700]!;
-    }
-    if (lower.contains('base')) return Colors.red[700]!;
-    if (lower.contains('tennis')) return Colors.lime[700]!;
-    if (lower.contains('swim')) return Colors.blue[700]!;
-    if (lower.contains('hockey')) return Colors.indigo[700]!;
-    return Colors.blueGrey[700]!;
+    if (lower.contains('basket')) return const Color(0xFFE8732A);
+    if (lower.contains('soccer') || lower.contains('football')) return const Color(0xFF2ECC71);
+    if (lower.contains('base')) return const Color(0xFFE74C3C);
+    if (lower.contains('tennis')) return const Color(0xFFCDDC39);
+    if (lower.contains('swim')) return const Color(0xFF3498DB);
+    if (lower.contains('hockey')) return const Color(0xFF5C6BC0);
+    if (lower.contains('cricket')) return const Color(0xFF26A69A);
+    if (lower.contains('volley')) return const Color(0xFFFF7043);
+    return const Color(0xFF607D8B);
   }
 }

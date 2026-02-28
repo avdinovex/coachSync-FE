@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/services/auth_service.dart';
+import '../../../schedule/data/event_service.dart';
+import '../../../schedule/domain/models/event.dart';
 import '../../data/team_service.dart';
 import '../../domain/models/team.dart';
 
@@ -17,11 +21,14 @@ class TeamDetailPage extends StatefulWidget {
 
 class _TeamDetailPageState extends State<TeamDetailPage> {
   final TeamService _teamService = TeamService();
+  final EventService _eventService = EventService();
 
   Team? _team;
   List<TeamMember> _members = [];
+  List<Event> _upcomingEvents = [];
   bool _loadingTeam = true;
   bool _loadingMembers = true;
+  bool _loadingEvents = true;
   String? _error;
   bool _infoExpanded = true;
 
@@ -91,7 +98,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   }
 
   Future<void> _loadAll() async {
-    await Future.wait([_loadTeam(), _loadMembers()]);
+    await Future.wait([_loadTeam(), _loadMembers(), _loadEvents()]);
   }
 
   Future<void> _loadTeam() async {
@@ -121,6 +128,19 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
       // members error handled silently, main error shown from _loadTeam
     } finally {
       if (mounted) setState(() => _loadingMembers = false);
+    }
+  }
+
+  Future<void> _loadEvents() async {
+    setState(() => _loadingEvents = true);
+    try {
+      final events = await _eventService.getUpcomingEvents(teamId: widget.teamId);
+      if (!mounted) return;
+      setState(() => _upcomingEvents = events);
+    } catch (e) {
+      // events error handled silently
+    } finally {
+      if (mounted) setState(() => _loadingEvents = false);
     }
   }
 
@@ -533,6 +553,20 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
   // ─────────────────────── Helpers ───────────────────────
 
+  /// Map sport to a local asset image.
+  static const _sportImages = <String, String>{
+    'basketball': 'assets/images/basketball.jpg',
+    'cricket': 'assets/images/cricket.jpg',
+    'football': 'assets/images/football.jpg',
+    'soccer': 'assets/images/football.jpg',
+    'tennis': 'assets/images/tennis.jpg',
+    'hockey': 'assets/images/hockey.png',
+  };
+  static const _defaultTeamImage = 'assets/images/basketball.jpg';
+
+  String get _teamImage =>
+      _sportImages[_team?.sport.toLowerCase() ?? ''] ?? _defaultTeamImage;
+
   void _showSnack(String msg, {bool error = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -574,107 +608,291 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const BackButton(color: Colors.white),
-        title: Text(
-          widget.teamName,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadAll,
-          ),
-          PopupMenuButton<String>(
-            color: Colors.grey[900],
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (val) {
-              if (val == 'edit') _showEditSheet();
-              if (val == 'delete') _confirmDelete();
-            },
-            itemBuilder: (_) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(children: [
-                  Icon(Icons.edit, color: Colors.white70, size: 18),
-                  SizedBox(width: 8),
-                  Text('Edit Team', style: TextStyle(color: Colors.white)),
-                ]),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(children: [
-                  Icon(Icons.delete_outline, color: Colors.redAccent, size: 18),
-                  SizedBox(width: 8),
-                  Text('Delete Team',
-                      style: TextStyle(color: Colors.redAccent)),
-                ]),
-              ),
-            ],
-          ),
-        ],
-      ),
-      floatingActionButton: _canAddMembers
-          ? FloatingActionButton.extended(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              icon: const Icon(Icons.person_add_alt_1),
-              label: const Text('Add Member',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: _showAddMemberSheet,
-            )
-          : null,
       body: _loadingTeam
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _error != null
               ? _ErrorState(message: _error!, onRetry: _loadAll)
               : RefreshIndicator(
                   onRefresh: _loadAll,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                    children: [
-                      _TeamInfoCard(
-                        team: _team!,
-                        memberCount: _members.length,
-                        isExpanded: _infoExpanded,
-                        onToggle: () =>
-                            setState(() => _infoExpanded = !_infoExpanded),
+                  color: Colors.white,
+                  backgroundColor: const Color(0xFF1A1A1A),
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      // ───── Hero image + overlaid back / actions ─────
+                      SliverAppBar(
+                        expandedHeight: 220,
+                        pinned: true,
+                        backgroundColor: const Color(0xFF0A0A0A),
+                        leading: _CircleBackButton(onPressed: () => Navigator.pop(context)),
+                        actions: [
+                          _CircleIconButton(
+                            icon: Icons.refresh_rounded,
+                            onPressed: _loadAll,
+                          ),
+                          PopupMenuButton<String>(
+                            color: const Color(0xFF1E1E1E),
+                            icon: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+                            ),
+                            onSelected: (val) {
+                              if (val == 'edit') _showEditSheet();
+                              if (val == 'delete') _confirmDelete();
+                            },
+                            itemBuilder: (_) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(children: [
+                                  Icon(Icons.edit_outlined, color: Colors.white70, size: 18),
+                                  SizedBox(width: 10),
+                                  Text('Edit Team', style: TextStyle(color: Colors.white)),
+                                ]),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(children: [
+                                  Icon(Icons.delete_outline, color: Colors.redAccent, size: 18),
+                                  SizedBox(width: 10),
+                                  Text('Delete Team', style: TextStyle(color: Colors.redAccent)),
+                                ]),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.asset(_teamImage, fit: BoxFit.cover),
+                              // Bottom gradient so text is readable
+                              Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Colors.transparent, Colors.black],
+                                    stops: [0.4, 1.0],
+                                  ),
+                                ),
+                              ),
+                              // Team name + sport chip overlaid at bottom
+                              Positioned(
+                                bottom: 16,
+                                left: 20,
+                                right: 20,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _team!.name,
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: Colors.white24),
+                                      ),
+                                      child: Text(
+                                        _team!.sport,
+                                        style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 24),
-                      _MembersSectionHeader(
-                        count: _members.length,
-                        loading: _loadingMembers,
+
+                      // ───── BODY ─────
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // ── Description ──
+                              if (_team!.description?.isNotEmpty == true) ...[
+                                Text(
+                                  _team!.description!,
+                                  style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14, height: 1.5),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+
+                              // ── Stats Row ──
+                              Row(
+                                children: [
+                                  _StatChip(
+                                    icon: Icons.people_alt_rounded,
+                                    label: 'Members',
+                                    value: '${_members.length}',
+                                  ),
+                                  const SizedBox(width: 10),
+                                  _StatChip(
+                                    icon: Icons.event_rounded,
+                                    label: 'Upcoming',
+                                    value: '${_upcomingEvents.length}',
+                                  ),
+                                  const SizedBox(width: 10),
+                                  _StatChip(
+                                    icon: Icons.calendar_today_rounded,
+                                    label: 'Created',
+                                    value: DateFormat('MMM d, yyyy').format(_team!.createdAt.toLocal()),
+                                    flex: 2,
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // ── Join Code ──
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF141414),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: const Color(0xFF2A2A2A)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(Icons.vpn_key_rounded, color: Colors.white70, size: 18),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Join Code', style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.w500)),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            _team!.joinCode,
+                                            style: GoogleFonts.inter(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Clipboard.setData(ClipboardData(text: _team!.joinCode));
+                                        _showSnack('Join code copied!');
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(Icons.copy_rounded, color: Colors.white70, size: 18),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 28),
+
+                              // ── Upcoming Events ──
+                              _SectionHeader(title: 'Upcoming Events', count: _upcomingEvents.length),
+                              const SizedBox(height: 12),
+                              if (_loadingEvents)
+                                const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                              else if (_upcomingEvents.isEmpty)
+                                _EmptyCard(
+                                  icon: Icons.event_busy_rounded,
+                                  title: 'No upcoming events',
+                                  subtitle: 'Events for this team will appear here.',
+                                )
+                              else
+                                SizedBox(
+                                  height: 110,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _upcomingEvents.length,
+                                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                                    itemBuilder: (_, i) => _UpcomingEventCard(event: _upcomingEvents[i]),
+                                  ),
+                                ),
+
+                              const SizedBox(height: 28),
+
+                              // ── Members ──
+                              Row(
+                                children: [
+                                  Expanded(child: _SectionHeader(title: 'Members', count: _members.length)),
+                                  if (_canAddMembers)
+                                    GestureDetector(
+                                      onTap: _showAddMemberSheet,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.person_add_alt_1_rounded, color: Colors.black, size: 16),
+                                            const SizedBox(width: 6),
+                                            Text('Add', style: GoogleFonts.inter(color: Colors.black, fontSize: 13, fontWeight: FontWeight.w700)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              if (_loadingMembers)
+                                const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                              else if (_members.isEmpty)
+                                _EmptyCard(
+                                  icon: Icons.group_off_rounded,
+                                  title: 'No members yet',
+                                  subtitle: 'Tap "Add" to invite someone.',
+                                )
+                              else
+                                ..._sortedMembers.map((m) {
+                                  final isCurrentUser = m.userId == AuthService.currentUser?.id;
+                                  final canManage = !isCurrentUser && _canAddMembers;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: _MemberTile(
+                                      member: m,
+                                      isCurrentUser: isCurrentUser,
+                                      onTap: canManage ? () => _showRoleChangeSheet(m) : null,
+                                    ),
+                                  );
+                                }),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      if (_loadingMembers)
-                        const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(),
-                        ))
-                      else if (_members.isEmpty)
-                        _EmptyMembers()
-                      else
-                        ..._sortedMembers
-                            .map((m) {
-                              final isCurrentUser =
-                                  m.userId == AuthService.currentUser?.id;
-                              // Can manage if current user is leader or coach,
-                              // but not managing themselves
-                              final canManage =
-                                  !isCurrentUser && _canAddMembers;
-                              return _MemberTile(
-                                member: m,
-                                isCurrentUser: isCurrentUser,
-                                onTap: canManage
-                                    ? () => _showRoleChangeSheet(m)
-                                    : null,
-                              );
-                            })
-                            .toList(),
                     ],
                   ),
                 ),
@@ -684,233 +902,204 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
 // ─────────────────────────── Sub-widgets ───────────────────────────
 
-class _TeamInfoCard extends StatelessWidget {
-  const _TeamInfoCard({
-    required this.team,
-    required this.memberCount,
-    required this.isExpanded,
-    required this.onToggle,
-  });
-  final Team team;
-  final int memberCount;
-  final bool isExpanded;
-  final VoidCallback onToggle;
+class _CircleBackButton extends StatelessWidget {
+  const _CircleBackButton({required this.onPressed});
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.5),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleIconButton extends StatelessWidget {
+  const _CircleIconButton({required this.icon, required this.onPressed});
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({required this.icon, required this.label, required this.value, this.flex = 1});
+  final IconData icon;
+  final String label;
+  final String value;
+  final int flex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF141414),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2A2A2A)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: Colors.grey.shade500, size: 18),
+            const SizedBox(height: 8),
+            Text(value, style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text(label, style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 11)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, this.count});
+  final String title;
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(title, style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+        if (count != null) ...[
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+            decoration: BoxDecoration(color: const Color(0xFF2A2A2A), borderRadius: BorderRadius.circular(12)),
+            child: Text('$count', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _UpcomingEventCard extends StatelessWidget {
+  const _UpcomingEventCard({required this.event});
+  final Event event;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeFmt = DateFormat('h:mm a');
+    final dateFmt = DateFormat('MMM d');
+    final timeStr = event.endTime != null
+        ? '${timeFmt.format(event.startTime)} – ${timeFmt.format(event.endTime!)}'
+        : timeFmt.format(event.startTime);
+
     return Container(
+      width: 210,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: const Color(0xFF141414),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[800]!),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header (always visible, tap to collapse) ──
-          InkWell(
-            onTap: onToggle,
-            borderRadius: BorderRadius.vertical(
-              top: const Radius.circular(16),
-              bottom: isExpanded ? Radius.zero : const Radius.circular(16),
+          // Title chip
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child:
-                        const Icon(Icons.sports, color: Colors.white, size: 28),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          team.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            team.sport,
-                            style:
-                                TextStyle(color: Colors.grey[300], fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AnimatedRotation(
-                    turns: isExpanded ? 0 : 0.5,
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(Icons.expand_less,
-                        color: Colors.grey[500], size: 22),
-                  ),
-                ],
+            child: Text(
+              event.title,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Time
+          Row(
+            children: [
+              const Icon(Icons.access_time_rounded, size: 13, color: Color(0xFFFF5B5B)),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(timeStr, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(color: const Color(0xFFFF5B5B), fontSize: 11, fontWeight: FontWeight.w500)),
               ),
-            ),
+            ],
           ),
-          // ── Collapsible body ──
-          AnimatedCrossFade(
-            duration: const Duration(milliseconds: 250),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
-            firstChild: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-          if (team.description?.isNotEmpty == true) ...[
-            const SizedBox(height: 14),
-            Text(
-              team.description!,
-              style: const TextStyle(color: Colors.white70, height: 1.4),
-            ),
-          ],
-          const SizedBox(height: 16),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 12),
-          _InfoRow(
-            icon: Icons.vpn_key,
-            label: 'Join Code',
-            value: team.joinCode,
-            copyable: true,
-          ),
-          const SizedBox(height: 8),
-          _InfoRow(
-            icon: Icons.people_outline,
-            label: 'Members',
-            value: '$memberCount',
-          ),
-          const SizedBox(height: 8),
-          _InfoRow(
-            icon: Icons.calendar_today,
-            label: 'Created',
-            value: _formatDate(team.createdAt),
-          ),
-                ],
+          const SizedBox(height: 5),
+          // Location
+          Row(
+            children: [
+              const Icon(Icons.location_on_outlined, size: 13, color: Colors.white54),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(event.location ?? 'TBD', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 11)),
               ),
-            ),
-            secondChild: const SizedBox.shrink(),
+            ],
+          ),
+          const Spacer(),
+          // Date
+          Row(
+            children: [
+              const Icon(Icons.calendar_today_rounded, size: 12, color: Colors.white54),
+              const SizedBox(width: 5),
+              Text(dateFmt.format(event.startTime), style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 11)),
+            ],
           ),
         ],
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    final d = date.toLocal();
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month - 1]} ${d.day}, ${d.year}';
-  }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.copyable = false,
-  });
-
+class _EmptyCard extends StatelessWidget {
+  const _EmptyCard({required this.icon, required this.title, required this.subtitle});
   final IconData icon;
-  final String label;
-  final String value;
-  final bool copyable;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[500]),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(color: Colors.grey[500], fontSize: 13),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Courier',
-            ),
-          ),
-        ),
-        if (copyable)
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: value));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Join code copied!'),
-                  duration: Duration(seconds: 1),
-                ),
-              );
-            },
-            child: Icon(Icons.copy, size: 16, color: Colors.grey[500]),
-          ),
-      ],
-    );
-  }
-}
-
-class _MembersSectionHeader extends StatelessWidget {
-  const _MembersSectionHeader({required this.count, required this.loading});
-  final int count;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text(
-          'Members',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(width: 8),
-        if (!loading)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '$count',
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 40, color: Colors.grey.shade700),
+          const SizedBox(height: 10),
+          Text(title, style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 15, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12), textAlign: TextAlign.center),
+        ],
+      ),
     );
   }
 }
@@ -925,7 +1114,7 @@ class _MemberTile extends StatelessWidget {
   final bool isCurrentUser;
   final VoidCallback? onTap;
 
-  static const _roleColors = {
+  static const _roleColors = <MemberRole, Color>{
     MemberRole.coach: Colors.amber,
     MemberRole.leader: Colors.deepPurpleAccent,
     MemberRole.parent: Colors.tealAccent,
@@ -935,145 +1124,109 @@ class _MemberTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = _initials(member.displayName);
+    final avatarColor = _roleColors[member.roles.first] ?? Colors.blueAccent;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: isCurrentUser ? Colors.grey[850] : Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isCurrentUser
-              ? Colors.white.withOpacity(0.15)
-              : onTap != null
-                  ? Colors.white.withOpacity(0.12)
-                  : Colors.grey[800]!,
-        ),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.grey[800],
-            child: Text(
-              initials,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15),
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isCurrentUser ? const Color(0xFF1A1A1A) : const Color(0xFF111111),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isCurrentUser ? Colors.white.withOpacity(0.12) : const Color(0xFF2A2A2A),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  member.displayName,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14),
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [avatarColor.withOpacity(0.4), avatarColor.withOpacity(0.15)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                if (member.email != null)
-                  Text(
-                    member.email!,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                initials,
+                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Name + email
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          member.displayName,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                      ),
+                      if (isCurrentUser) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text('You', style: GoogleFonts.inter(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    ],
                   ),
-                const SizedBox(height: 4),
-                Text(
-                  'Joined ${_formatDate(member.joinedAt)}',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 11),
-                ),
+                  if (member.email != null)
+                    Text(member.email!, style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12)),
+                ],
+              ),
+            ),
+            // Role badges
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ...member.roles.map((role) {
+                  final color = _roleColors[role] ?? Colors.grey;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: color.withOpacity(0.4)),
+                    ),
+                    child: Text(
+                      role.name[0].toUpperCase() + role.name.substring(1),
+                      style: GoogleFonts.inter(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
+                  );
+                }),
+                if (onTap != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(Icons.edit_outlined, size: 13, color: Colors.grey.shade600),
+                  ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              ...member.roles.map((role) {
-                final color = _roleColors[role] ?? Colors.grey;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: color.withOpacity(0.5)),
-                  ),
-                  child: Text(
-                    role.name[0].toUpperCase() + role.name.substring(1),
-                    style: TextStyle(
-                        color: color,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600),
-                  ),
-                );
-              }),
-              if (onTap != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Icon(Icons.edit,
-                      size: 13, color: Colors.grey[600]),
-                ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
   String _initials(String name) {
     final parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
-  }
-
-  String _formatDate(DateTime date) {
-    final d = date.toLocal();
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[d.month - 1]} ${d.day}';
-  }
-}
-
-class _EmptyMembers extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[800]!),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.group_off, size: 48, color: Colors.grey[700]),
-          const SizedBox(height: 12),
-          const Text(
-            'No members yet',
-            style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Tap "Add Member" to invite someone.',
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -1090,19 +1243,14 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, color: Colors.red[300], size: 48),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline_rounded, color: Colors.red[300], size: 48),
+            const SizedBox(height: 14),
+            Text(message, style: GoogleFonts.inter(color: Colors.white, fontSize: 14), textAlign: TextAlign.center),
+            const SizedBox(height: 18),
             TextButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              label:
-                  const Text('Retry', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              label: Text('Retry', style: GoogleFonts.inter(color: Colors.white)),
             ),
           ],
         ),
