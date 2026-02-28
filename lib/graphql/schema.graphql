@@ -103,16 +103,44 @@ enum EventType {
   PRACTICE
 }
 
-type GameStat {
+type GamePlay {
+  assistPlayerId: String
   createdAt: DateTime!
+  description: String
+  forTeam: Boolean!
+  gameClock: String
+  gameStatsId: String!
+  id: String!
+  metadata: JSON
+  period: Int!
+  playResult: String
+  playType: String!
+  playerId: String
+  pointsScored: Int!
+}
+
+type GameStat {
+  awayScore: Int!
+  createdAt: DateTime!
+  currentPeriod: Int!
   eventId: String!
-  finalScore: String
+  finalScore: String @deprecated(reason: "Use homeScore/awayScore instead")
+  gameStatus: GameStatus!
+  homeScore: Int!
   id: String!
   notes: String
   opponentName: String
   playerStats: [PlayerStat!]
+  plays: [GamePlay!]
+  scoreOverride: Boolean!
   teamId: String!
   updatedAt: DateTime!
+}
+
+enum GameStatus {
+  FINAL
+  IN_PROGRESS
+  NOT_STARTED
 }
 
 """
@@ -137,7 +165,6 @@ input LoginInput {
 """Role of the team member"""
 enum MemberRole {
   COACH
-  LEADER
   PARENT
   PLAYER
 }
@@ -175,14 +202,34 @@ type Mutation {
   joinTeam(joinTeamInput: JoinTeamInput!): TeamMember!
   login(loginInput: LoginInput!): AuthResponse!
   markMessagesAsRead(teamId: String!): Boolean!
+
+  """Create a new game stats record for a GAME-type event"""
   recordGameStats(recordGameStatsInput: RecordGameStatsInput!): GameStat!
+
+  """
+  Record a single play-by-play action. Auto-recomputes score and player stats.
+  """
+  recordPlay(recordPlayInput: RecordPlayInput!): GamePlay!
   removeEvent(id: String!): Boolean!
   removeNotification(id: Int!): Notification!
   removeTeam(id: String!): Boolean!
   removeTeamMember(teamId: String!, userId: String!): Boolean!
   sendMessage(sendMessageInput: SendMessageInput!): Message!
   signup(signupInput: SignupInput!): AuthResponse!
+
+  """
+  Undo the most recent play. Returns the deleted play, or null if no plays exist.
+  """
+  undoLastPlay(gameStatsId: String!): GamePlay
   updateEvent(updateEventInput: UpdateEventInput!): Event!
+
+  """
+  Update game metadata (opponent name, notes) or manually override scores.
+  """
+  updateGameStats(updateGameStatsInput: UpdateGameStatsInput!): GameStat!
+
+  """Transition game status between NOT_STARTED, IN_PROGRESS, and FINAL."""
+  updateGameStatus(updateGameStatusInput: UpdateGameStatusInput!): GameStat!
   updateNotification(updateNotificationInput: UpdateNotificationInput!): Notification!
   updateProfile(updateProfileInput: UpdateProfileInput!): User!
   updateRsvp(updateRsvpInput: UpdateRsvpInput!): EventRsvp!
@@ -195,13 +242,16 @@ type Notification {
 }
 
 type PlayerStat {
-  assists: Int
+  assists: Int @deprecated(reason: "Use stats JSON instead")
   createdAt: DateTime!
   gameStatsId: String!
   id: String!
-  minutesPlayed: Int
-  points: Int
-  rebounds: Int
+  minutesPlayed: Int @deprecated(reason: "Use stats JSON instead")
+  points: Int @deprecated(reason: "Use stats JSON instead")
+  rebounds: Int @deprecated(reason: "Use stats JSON instead")
+
+  """Sport-agnostic stats object, e.g. { "PTS": 12, "AST": 3, "2PT_FG": 4 }"""
+  stats: JSON!
   updatedAt: DateTime!
   userId: String!
 }
@@ -210,6 +260,9 @@ type Query {
   event(id: String!): Event!
   eventRsvps(eventId: String!): [EventRsvp!]!
   events(teamId: String!): [Event!]!
+
+  """Get all plays for a game in chronological order"""
+  gamePlays(gameStatsId: String!): [GamePlay!]!
   gameStats(eventId: String!): GameStat!
   me: Auth!
   messages(limit: Int, teamId: String!): [Message!]!
@@ -225,19 +278,49 @@ type Query {
 
 input RecordGameStatsInput {
   eventId: String!
-  finalScore: String
   notes: String
   opponentName: String
-  playerStats: [RecordPlayerStatInput!]
   teamId: String!
 }
 
-input RecordPlayerStatInput {
-  assists: Int = 0
-  minutesPlayed: Int = 0
-  points: Int = 0
-  rebounds: Int = 0
-  userId: String!
+"""Record a single play-by-play action"""
+input RecordPlayInput {
+  """Player who assisted"""
+  assistPlayerId: String
+  description: String
+
+  """true = scored by home/your team, false = opponent"""
+  forTeam: Boolean! = true
+
+  """
+  Game clock value, e.g. "4:32"
+  """
+  gameClock: String
+
+  """Game stats record ID"""
+  gameStatsId: String!
+
+  """Any sport-specific metadata in freeform JSON"""
+  metadata: JSON
+
+  """Period/quarter/inning number"""
+  period: Int
+
+  """
+  E.g. "MADE", "MISSED"
+  """
+  playResult: String
+
+  """
+  E.g. "2PT_FG", "3PT_FG", "FREE_THROW", "GOAL", "RUN"
+  """
+  playType: String!
+
+  """Player who performed the action"""
+  playerId: String
+
+  """Points this play is worth (0 for non-scoring plays)"""
+  pointsScored: Int!
 }
 
 enum RsvpStatus {
@@ -266,6 +349,9 @@ input SignupInput {
 
 type Subscription {
   eventUpdated(teamId: String!): Event!
+
+  """Real-time updates when game score, status, or player stats change."""
+  gameStatsUpdated(eventId: String!): GameStat!
   messageAdded(teamId: String!): Message!
 }
 
@@ -308,6 +394,31 @@ input UpdateEventInput {
   startTime: DateTime
   teamId: String
   title: String
+}
+
+"""Manually set/override game scores and metadata"""
+input UpdateGameStatsInput {
+  """Set away (opponent) score manually"""
+  awayScore: Int
+
+  """Set home (your team) score manually"""
+  homeScore: Int
+
+  """The game stats record ID"""
+  id: String!
+  notes: String
+  opponentName: String
+
+  """When true, manual scores take precedence over play-derived totals"""
+  scoreOverride: Boolean
+}
+
+"""Transition game between NOT_STARTED, IN_PROGRESS, and FINAL"""
+input UpdateGameStatusInput {
+  """Update current period at the same time"""
+  currentPeriod: Int
+  gameStatsId: String!
+  status: GameStatus!
 }
 
 input UpdateNotificationInput {

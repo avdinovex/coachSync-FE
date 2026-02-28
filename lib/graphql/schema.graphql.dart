@@ -1249,17 +1249,13 @@ class _CopyWithStubImpl$Input$LoginInput<TRes>
 class Input$RecordGameStatsInput {
   factory Input$RecordGameStatsInput({
     required String eventId,
-    String? finalScore,
     String? notes,
     String? opponentName,
-    List<Input$RecordPlayerStatInput>? playerStats,
     required String teamId,
   }) => Input$RecordGameStatsInput._({
     r'eventId': eventId,
-    if (finalScore != null) r'finalScore': finalScore,
     if (notes != null) r'notes': notes,
     if (opponentName != null) r'opponentName': opponentName,
-    if (playerStats != null) r'playerStats': playerStats,
     r'teamId': teamId,
   });
 
@@ -1269,10 +1265,6 @@ class Input$RecordGameStatsInput {
     final result$data = <String, dynamic>{};
     final l$eventId = data['eventId'];
     result$data['eventId'] = (l$eventId as String);
-    if (data.containsKey('finalScore')) {
-      final l$finalScore = data['finalScore'];
-      result$data['finalScore'] = (l$finalScore as String?);
-    }
     if (data.containsKey('notes')) {
       final l$notes = data['notes'];
       result$data['notes'] = (l$notes as String?);
@@ -1280,16 +1272,6 @@ class Input$RecordGameStatsInput {
     if (data.containsKey('opponentName')) {
       final l$opponentName = data['opponentName'];
       result$data['opponentName'] = (l$opponentName as String?);
-    }
-    if (data.containsKey('playerStats')) {
-      final l$playerStats = data['playerStats'];
-      result$data['playerStats'] = (l$playerStats as List<dynamic>?)
-          ?.map(
-            (e) => Input$RecordPlayerStatInput.fromJson(
-              (e as Map<String, dynamic>),
-            ),
-          )
-          .toList();
     }
     final l$teamId = data['teamId'];
     result$data['teamId'] = (l$teamId as String);
@@ -1300,14 +1282,9 @@ class Input$RecordGameStatsInput {
 
   String get eventId => (_$data['eventId'] as String);
 
-  String? get finalScore => (_$data['finalScore'] as String?);
-
   String? get notes => (_$data['notes'] as String?);
 
   String? get opponentName => (_$data['opponentName'] as String?);
-
-  List<Input$RecordPlayerStatInput>? get playerStats =>
-      (_$data['playerStats'] as List<Input$RecordPlayerStatInput>?);
 
   String get teamId => (_$data['teamId'] as String);
 
@@ -1315,10 +1292,6 @@ class Input$RecordGameStatsInput {
     final result$data = <String, dynamic>{};
     final l$eventId = eventId;
     result$data['eventId'] = l$eventId;
-    if (_$data.containsKey('finalScore')) {
-      final l$finalScore = finalScore;
-      result$data['finalScore'] = l$finalScore;
-    }
     if (_$data.containsKey('notes')) {
       final l$notes = notes;
       result$data['notes'] = l$notes;
@@ -1326,12 +1299,6 @@ class Input$RecordGameStatsInput {
     if (_$data.containsKey('opponentName')) {
       final l$opponentName = opponentName;
       result$data['opponentName'] = l$opponentName;
-    }
-    if (_$data.containsKey('playerStats')) {
-      final l$playerStats = playerStats;
-      result$data['playerStats'] = l$playerStats
-          ?.map((e) => e.toJson())
-          .toList();
     }
     final l$teamId = teamId;
     result$data['teamId'] = l$teamId;
@@ -1355,15 +1322,6 @@ class Input$RecordGameStatsInput {
     if (l$eventId != lOther$eventId) {
       return false;
     }
-    final l$finalScore = finalScore;
-    final lOther$finalScore = other.finalScore;
-    if (_$data.containsKey('finalScore') !=
-        other._$data.containsKey('finalScore')) {
-      return false;
-    }
-    if (l$finalScore != lOther$finalScore) {
-      return false;
-    }
     final l$notes = notes;
     final lOther$notes = other.notes;
     if (_$data.containsKey('notes') != other._$data.containsKey('notes')) {
@@ -1381,26 +1339,6 @@ class Input$RecordGameStatsInput {
     if (l$opponentName != lOther$opponentName) {
       return false;
     }
-    final l$playerStats = playerStats;
-    final lOther$playerStats = other.playerStats;
-    if (_$data.containsKey('playerStats') !=
-        other._$data.containsKey('playerStats')) {
-      return false;
-    }
-    if (l$playerStats != null && lOther$playerStats != null) {
-      if (l$playerStats.length != lOther$playerStats.length) {
-        return false;
-      }
-      for (int i = 0; i < l$playerStats.length; i++) {
-        final l$playerStats$entry = l$playerStats[i];
-        final lOther$playerStats$entry = lOther$playerStats[i];
-        if (l$playerStats$entry != lOther$playerStats$entry) {
-          return false;
-        }
-      }
-    } else if (l$playerStats != lOther$playerStats) {
-      return false;
-    }
     final l$teamId = teamId;
     final lOther$teamId = other.teamId;
     if (l$teamId != lOther$teamId) {
@@ -1412,21 +1350,13 @@ class Input$RecordGameStatsInput {
   @override
   int get hashCode {
     final l$eventId = eventId;
-    final l$finalScore = finalScore;
     final l$notes = notes;
     final l$opponentName = opponentName;
-    final l$playerStats = playerStats;
     final l$teamId = teamId;
     return Object.hashAll([
       l$eventId,
-      _$data.containsKey('finalScore') ? l$finalScore : const {},
       _$data.containsKey('notes') ? l$notes : const {},
       _$data.containsKey('opponentName') ? l$opponentName : const {},
-      _$data.containsKey('playerStats')
-          ? l$playerStats == null
-                ? null
-                : Object.hashAll(l$playerStats.map((v) => v))
-          : const {},
       l$teamId,
     ]);
   }
@@ -1443,20 +1373,10 @@ abstract class CopyWith$Input$RecordGameStatsInput<TRes> {
 
   TRes call({
     String? eventId,
-    String? finalScore,
     String? notes,
     String? opponentName,
-    List<Input$RecordPlayerStatInput>? playerStats,
     String? teamId,
   });
-  TRes playerStats(
-    Iterable<Input$RecordPlayerStatInput>? Function(
-      Iterable<
-        CopyWith$Input$RecordPlayerStatInput<Input$RecordPlayerStatInput>
-      >?,
-    )
-    _fn,
-  );
 }
 
 class _CopyWithImpl$Input$RecordGameStatsInput<TRes>
@@ -1471,38 +1391,18 @@ class _CopyWithImpl$Input$RecordGameStatsInput<TRes>
 
   TRes call({
     Object? eventId = _undefined,
-    Object? finalScore = _undefined,
     Object? notes = _undefined,
     Object? opponentName = _undefined,
-    Object? playerStats = _undefined,
     Object? teamId = _undefined,
   }) => _then(
     Input$RecordGameStatsInput._({
       ..._instance._$data,
       if (eventId != _undefined && eventId != null)
         'eventId': (eventId as String),
-      if (finalScore != _undefined) 'finalScore': (finalScore as String?),
       if (notes != _undefined) 'notes': (notes as String?),
       if (opponentName != _undefined) 'opponentName': (opponentName as String?),
-      if (playerStats != _undefined)
-        'playerStats': (playerStats as List<Input$RecordPlayerStatInput>?),
       if (teamId != _undefined && teamId != null) 'teamId': (teamId as String),
     }),
-  );
-
-  TRes playerStats(
-    Iterable<Input$RecordPlayerStatInput>? Function(
-      Iterable<
-        CopyWith$Input$RecordPlayerStatInput<Input$RecordPlayerStatInput>
-      >?,
-    )
-    _fn,
-  ) => call(
-    playerStats: _fn(
-      _instance.playerStats?.map(
-        (e) => CopyWith$Input$RecordPlayerStatInput(e, (i) => i),
-      ),
-    )?.toList(),
   );
 }
 
@@ -1514,140 +1414,246 @@ class _CopyWithStubImpl$Input$RecordGameStatsInput<TRes>
 
   call({
     String? eventId,
-    String? finalScore,
     String? notes,
     String? opponentName,
-    List<Input$RecordPlayerStatInput>? playerStats,
     String? teamId,
   }) => _res;
-
-  playerStats(_fn) => _res;
 }
 
-class Input$RecordPlayerStatInput {
-  factory Input$RecordPlayerStatInput({
-    int? assists,
-    int? minutesPlayed,
-    int? points,
-    int? rebounds,
-    required String userId,
-  }) => Input$RecordPlayerStatInput._({
-    if (assists != null) r'assists': assists,
-    if (minutesPlayed != null) r'minutesPlayed': minutesPlayed,
-    if (points != null) r'points': points,
-    if (rebounds != null) r'rebounds': rebounds,
-    r'userId': userId,
+class Input$RecordPlayInput {
+  factory Input$RecordPlayInput({
+    String? assistPlayerId,
+    String? description,
+    bool? forTeam,
+    String? gameClock,
+    required String gameStatsId,
+    Map<String, dynamic>? metadata,
+    int? period,
+    String? playResult,
+    required String playType,
+    String? playerId,
+    required int pointsScored,
+  }) => Input$RecordPlayInput._({
+    if (assistPlayerId != null) r'assistPlayerId': assistPlayerId,
+    if (description != null) r'description': description,
+    if (forTeam != null) r'forTeam': forTeam,
+    if (gameClock != null) r'gameClock': gameClock,
+    r'gameStatsId': gameStatsId,
+    if (metadata != null) r'metadata': metadata,
+    if (period != null) r'period': period,
+    if (playResult != null) r'playResult': playResult,
+    r'playType': playType,
+    if (playerId != null) r'playerId': playerId,
+    r'pointsScored': pointsScored,
   });
 
-  Input$RecordPlayerStatInput._(this._$data);
+  Input$RecordPlayInput._(this._$data);
 
-  factory Input$RecordPlayerStatInput.fromJson(Map<String, dynamic> data) {
+  factory Input$RecordPlayInput.fromJson(Map<String, dynamic> data) {
     final result$data = <String, dynamic>{};
-    if (data.containsKey('assists')) {
-      final l$assists = data['assists'];
-      result$data['assists'] = (l$assists as int?);
+    if (data.containsKey('assistPlayerId')) {
+      final l$assistPlayerId = data['assistPlayerId'];
+      result$data['assistPlayerId'] = (l$assistPlayerId as String?);
     }
-    if (data.containsKey('minutesPlayed')) {
-      final l$minutesPlayed = data['minutesPlayed'];
-      result$data['minutesPlayed'] = (l$minutesPlayed as int?);
+    if (data.containsKey('description')) {
+      final l$description = data['description'];
+      result$data['description'] = (l$description as String?);
     }
-    if (data.containsKey('points')) {
-      final l$points = data['points'];
-      result$data['points'] = (l$points as int?);
+    if (data.containsKey('forTeam')) {
+      final l$forTeam = data['forTeam'];
+      result$data['forTeam'] = (l$forTeam as bool);
     }
-    if (data.containsKey('rebounds')) {
-      final l$rebounds = data['rebounds'];
-      result$data['rebounds'] = (l$rebounds as int?);
+    if (data.containsKey('gameClock')) {
+      final l$gameClock = data['gameClock'];
+      result$data['gameClock'] = (l$gameClock as String?);
     }
-    final l$userId = data['userId'];
-    result$data['userId'] = (l$userId as String);
-    return Input$RecordPlayerStatInput._(result$data);
+    final l$gameStatsId = data['gameStatsId'];
+    result$data['gameStatsId'] = (l$gameStatsId as String);
+    if (data.containsKey('metadata')) {
+      final l$metadata = data['metadata'];
+      result$data['metadata'] = (l$metadata as Map<String, dynamic>?);
+    }
+    if (data.containsKey('period')) {
+      final l$period = data['period'];
+      result$data['period'] = (l$period as int?);
+    }
+    if (data.containsKey('playResult')) {
+      final l$playResult = data['playResult'];
+      result$data['playResult'] = (l$playResult as String?);
+    }
+    final l$playType = data['playType'];
+    result$data['playType'] = (l$playType as String);
+    if (data.containsKey('playerId')) {
+      final l$playerId = data['playerId'];
+      result$data['playerId'] = (l$playerId as String?);
+    }
+    final l$pointsScored = data['pointsScored'];
+    result$data['pointsScored'] = (l$pointsScored as int);
+    return Input$RecordPlayInput._(result$data);
   }
 
   Map<String, dynamic> _$data;
 
-  int? get assists => (_$data['assists'] as int?);
+  String? get assistPlayerId => (_$data['assistPlayerId'] as String?);
 
-  int? get minutesPlayed => (_$data['minutesPlayed'] as int?);
+  String? get description => (_$data['description'] as String?);
 
-  int? get points => (_$data['points'] as int?);
+  bool? get forTeam => (_$data['forTeam'] as bool?);
 
-  int? get rebounds => (_$data['rebounds'] as int?);
+  String? get gameClock => (_$data['gameClock'] as String?);
 
-  String get userId => (_$data['userId'] as String);
+  String get gameStatsId => (_$data['gameStatsId'] as String);
+
+  Map<String, dynamic>? get metadata =>
+      (_$data['metadata'] as Map<String, dynamic>?);
+
+  int? get period => (_$data['period'] as int?);
+
+  String? get playResult => (_$data['playResult'] as String?);
+
+  String get playType => (_$data['playType'] as String);
+
+  String? get playerId => (_$data['playerId'] as String?);
+
+  int get pointsScored => (_$data['pointsScored'] as int);
 
   Map<String, dynamic> toJson() {
     final result$data = <String, dynamic>{};
-    if (_$data.containsKey('assists')) {
-      final l$assists = assists;
-      result$data['assists'] = l$assists;
+    if (_$data.containsKey('assistPlayerId')) {
+      final l$assistPlayerId = assistPlayerId;
+      result$data['assistPlayerId'] = l$assistPlayerId;
     }
-    if (_$data.containsKey('minutesPlayed')) {
-      final l$minutesPlayed = minutesPlayed;
-      result$data['minutesPlayed'] = l$minutesPlayed;
+    if (_$data.containsKey('description')) {
+      final l$description = description;
+      result$data['description'] = l$description;
     }
-    if (_$data.containsKey('points')) {
-      final l$points = points;
-      result$data['points'] = l$points;
+    if (_$data.containsKey('forTeam')) {
+      final l$forTeam = forTeam;
+      result$data['forTeam'] = (l$forTeam as bool);
     }
-    if (_$data.containsKey('rebounds')) {
-      final l$rebounds = rebounds;
-      result$data['rebounds'] = l$rebounds;
+    if (_$data.containsKey('gameClock')) {
+      final l$gameClock = gameClock;
+      result$data['gameClock'] = l$gameClock;
     }
-    final l$userId = userId;
-    result$data['userId'] = l$userId;
+    final l$gameStatsId = gameStatsId;
+    result$data['gameStatsId'] = l$gameStatsId;
+    if (_$data.containsKey('metadata')) {
+      final l$metadata = metadata;
+      result$data['metadata'] = l$metadata;
+    }
+    if (_$data.containsKey('period')) {
+      final l$period = period;
+      result$data['period'] = l$period;
+    }
+    if (_$data.containsKey('playResult')) {
+      final l$playResult = playResult;
+      result$data['playResult'] = l$playResult;
+    }
+    final l$playType = playType;
+    result$data['playType'] = l$playType;
+    if (_$data.containsKey('playerId')) {
+      final l$playerId = playerId;
+      result$data['playerId'] = l$playerId;
+    }
+    final l$pointsScored = pointsScored;
+    result$data['pointsScored'] = l$pointsScored;
     return result$data;
   }
 
-  CopyWith$Input$RecordPlayerStatInput<Input$RecordPlayerStatInput>
-  get copyWith => CopyWith$Input$RecordPlayerStatInput(this, (i) => i);
+  CopyWith$Input$RecordPlayInput<Input$RecordPlayInput> get copyWith =>
+      CopyWith$Input$RecordPlayInput(this, (i) => i);
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     }
-    if (other is! Input$RecordPlayerStatInput ||
-        runtimeType != other.runtimeType) {
+    if (other is! Input$RecordPlayInput || runtimeType != other.runtimeType) {
       return false;
     }
-    final l$assists = assists;
-    final lOther$assists = other.assists;
-    if (_$data.containsKey('assists') != other._$data.containsKey('assists')) {
+    final l$assistPlayerId = assistPlayerId;
+    final lOther$assistPlayerId = other.assistPlayerId;
+    if (_$data.containsKey('assistPlayerId') !=
+        other._$data.containsKey('assistPlayerId')) {
       return false;
     }
-    if (l$assists != lOther$assists) {
+    if (l$assistPlayerId != lOther$assistPlayerId) {
       return false;
     }
-    final l$minutesPlayed = minutesPlayed;
-    final lOther$minutesPlayed = other.minutesPlayed;
-    if (_$data.containsKey('minutesPlayed') !=
-        other._$data.containsKey('minutesPlayed')) {
+    final l$description = description;
+    final lOther$description = other.description;
+    if (_$data.containsKey('description') !=
+        other._$data.containsKey('description')) {
       return false;
     }
-    if (l$minutesPlayed != lOther$minutesPlayed) {
+    if (l$description != lOther$description) {
       return false;
     }
-    final l$points = points;
-    final lOther$points = other.points;
-    if (_$data.containsKey('points') != other._$data.containsKey('points')) {
+    final l$forTeam = forTeam;
+    final lOther$forTeam = other.forTeam;
+    if (_$data.containsKey('forTeam') != other._$data.containsKey('forTeam')) {
       return false;
     }
-    if (l$points != lOther$points) {
+    if (l$forTeam != lOther$forTeam) {
       return false;
     }
-    final l$rebounds = rebounds;
-    final lOther$rebounds = other.rebounds;
-    if (_$data.containsKey('rebounds') !=
-        other._$data.containsKey('rebounds')) {
+    final l$gameClock = gameClock;
+    final lOther$gameClock = other.gameClock;
+    if (_$data.containsKey('gameClock') !=
+        other._$data.containsKey('gameClock')) {
       return false;
     }
-    if (l$rebounds != lOther$rebounds) {
+    if (l$gameClock != lOther$gameClock) {
       return false;
     }
-    final l$userId = userId;
-    final lOther$userId = other.userId;
-    if (l$userId != lOther$userId) {
+    final l$gameStatsId = gameStatsId;
+    final lOther$gameStatsId = other.gameStatsId;
+    if (l$gameStatsId != lOther$gameStatsId) {
+      return false;
+    }
+    final l$metadata = metadata;
+    final lOther$metadata = other.metadata;
+    if (_$data.containsKey('metadata') !=
+        other._$data.containsKey('metadata')) {
+      return false;
+    }
+    if (l$metadata != lOther$metadata) {
+      return false;
+    }
+    final l$period = period;
+    final lOther$period = other.period;
+    if (_$data.containsKey('period') != other._$data.containsKey('period')) {
+      return false;
+    }
+    if (l$period != lOther$period) {
+      return false;
+    }
+    final l$playResult = playResult;
+    final lOther$playResult = other.playResult;
+    if (_$data.containsKey('playResult') !=
+        other._$data.containsKey('playResult')) {
+      return false;
+    }
+    if (l$playResult != lOther$playResult) {
+      return false;
+    }
+    final l$playType = playType;
+    final lOther$playType = other.playType;
+    if (l$playType != lOther$playType) {
+      return false;
+    }
+    final l$playerId = playerId;
+    final lOther$playerId = other.playerId;
+    if (_$data.containsKey('playerId') !=
+        other._$data.containsKey('playerId')) {
+      return false;
+    }
+    if (l$playerId != lOther$playerId) {
+      return false;
+    }
+    final l$pointsScored = pointsScored;
+    final lOther$pointsScored = other.pointsScored;
+    if (l$pointsScored != lOther$pointsScored) {
       return false;
     }
     return true;
@@ -1655,79 +1661,121 @@ class Input$RecordPlayerStatInput {
 
   @override
   int get hashCode {
-    final l$assists = assists;
-    final l$minutesPlayed = minutesPlayed;
-    final l$points = points;
-    final l$rebounds = rebounds;
-    final l$userId = userId;
+    final l$assistPlayerId = assistPlayerId;
+    final l$description = description;
+    final l$forTeam = forTeam;
+    final l$gameClock = gameClock;
+    final l$gameStatsId = gameStatsId;
+    final l$metadata = metadata;
+    final l$period = period;
+    final l$playResult = playResult;
+    final l$playType = playType;
+    final l$playerId = playerId;
+    final l$pointsScored = pointsScored;
     return Object.hashAll([
-      _$data.containsKey('assists') ? l$assists : const {},
-      _$data.containsKey('minutesPlayed') ? l$minutesPlayed : const {},
-      _$data.containsKey('points') ? l$points : const {},
-      _$data.containsKey('rebounds') ? l$rebounds : const {},
-      l$userId,
+      _$data.containsKey('assistPlayerId') ? l$assistPlayerId : const {},
+      _$data.containsKey('description') ? l$description : const {},
+      _$data.containsKey('forTeam') ? l$forTeam : const {},
+      _$data.containsKey('gameClock') ? l$gameClock : const {},
+      l$gameStatsId,
+      _$data.containsKey('metadata') ? l$metadata : const {},
+      _$data.containsKey('period') ? l$period : const {},
+      _$data.containsKey('playResult') ? l$playResult : const {},
+      l$playType,
+      _$data.containsKey('playerId') ? l$playerId : const {},
+      l$pointsScored,
     ]);
   }
 }
 
-abstract class CopyWith$Input$RecordPlayerStatInput<TRes> {
-  factory CopyWith$Input$RecordPlayerStatInput(
-    Input$RecordPlayerStatInput instance,
-    TRes Function(Input$RecordPlayerStatInput) then,
-  ) = _CopyWithImpl$Input$RecordPlayerStatInput;
+abstract class CopyWith$Input$RecordPlayInput<TRes> {
+  factory CopyWith$Input$RecordPlayInput(
+    Input$RecordPlayInput instance,
+    TRes Function(Input$RecordPlayInput) then,
+  ) = _CopyWithImpl$Input$RecordPlayInput;
 
-  factory CopyWith$Input$RecordPlayerStatInput.stub(TRes res) =
-      _CopyWithStubImpl$Input$RecordPlayerStatInput;
+  factory CopyWith$Input$RecordPlayInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$RecordPlayInput;
 
   TRes call({
-    int? assists,
-    int? minutesPlayed,
-    int? points,
-    int? rebounds,
-    String? userId,
+    String? assistPlayerId,
+    String? description,
+    bool? forTeam,
+    String? gameClock,
+    String? gameStatsId,
+    Map<String, dynamic>? metadata,
+    int? period,
+    String? playResult,
+    String? playType,
+    String? playerId,
+    int? pointsScored,
   });
 }
 
-class _CopyWithImpl$Input$RecordPlayerStatInput<TRes>
-    implements CopyWith$Input$RecordPlayerStatInput<TRes> {
-  _CopyWithImpl$Input$RecordPlayerStatInput(this._instance, this._then);
+class _CopyWithImpl$Input$RecordPlayInput<TRes>
+    implements CopyWith$Input$RecordPlayInput<TRes> {
+  _CopyWithImpl$Input$RecordPlayInput(this._instance, this._then);
 
-  final Input$RecordPlayerStatInput _instance;
+  final Input$RecordPlayInput _instance;
 
-  final TRes Function(Input$RecordPlayerStatInput) _then;
+  final TRes Function(Input$RecordPlayInput) _then;
 
   static const _undefined = <dynamic, dynamic>{};
 
   TRes call({
-    Object? assists = _undefined,
-    Object? minutesPlayed = _undefined,
-    Object? points = _undefined,
-    Object? rebounds = _undefined,
-    Object? userId = _undefined,
+    Object? assistPlayerId = _undefined,
+    Object? description = _undefined,
+    Object? forTeam = _undefined,
+    Object? gameClock = _undefined,
+    Object? gameStatsId = _undefined,
+    Object? metadata = _undefined,
+    Object? period = _undefined,
+    Object? playResult = _undefined,
+    Object? playType = _undefined,
+    Object? playerId = _undefined,
+    Object? pointsScored = _undefined,
   }) => _then(
-    Input$RecordPlayerStatInput._({
+    Input$RecordPlayInput._({
       ..._instance._$data,
-      if (assists != _undefined) 'assists': (assists as int?),
-      if (minutesPlayed != _undefined) 'minutesPlayed': (minutesPlayed as int?),
-      if (points != _undefined) 'points': (points as int?),
-      if (rebounds != _undefined) 'rebounds': (rebounds as int?),
-      if (userId != _undefined && userId != null) 'userId': (userId as String),
+      if (assistPlayerId != _undefined)
+        'assistPlayerId': (assistPlayerId as String?),
+      if (description != _undefined) 'description': (description as String?),
+      if (forTeam != _undefined && forTeam != null)
+        'forTeam': (forTeam as bool),
+      if (gameClock != _undefined) 'gameClock': (gameClock as String?),
+      if (gameStatsId != _undefined && gameStatsId != null)
+        'gameStatsId': (gameStatsId as String),
+      if (metadata != _undefined)
+        'metadata': (metadata as Map<String, dynamic>?),
+      if (period != _undefined) 'period': (period as int?),
+      if (playResult != _undefined) 'playResult': (playResult as String?),
+      if (playType != _undefined && playType != null)
+        'playType': (playType as String),
+      if (playerId != _undefined) 'playerId': (playerId as String?),
+      if (pointsScored != _undefined && pointsScored != null)
+        'pointsScored': (pointsScored as int),
     }),
   );
 }
 
-class _CopyWithStubImpl$Input$RecordPlayerStatInput<TRes>
-    implements CopyWith$Input$RecordPlayerStatInput<TRes> {
-  _CopyWithStubImpl$Input$RecordPlayerStatInput(this._res);
+class _CopyWithStubImpl$Input$RecordPlayInput<TRes>
+    implements CopyWith$Input$RecordPlayInput<TRes> {
+  _CopyWithStubImpl$Input$RecordPlayInput(this._res);
 
   TRes _res;
 
   call({
-    int? assists,
-    int? minutesPlayed,
-    int? points,
-    int? rebounds,
-    String? userId,
+    String? assistPlayerId,
+    String? description,
+    bool? forTeam,
+    String? gameClock,
+    String? gameStatsId,
+    Map<String, dynamic>? metadata,
+    int? period,
+    String? playResult,
+    String? playType,
+    String? playerId,
+    int? pointsScored,
   }) => _res;
 }
 
@@ -2365,6 +2413,384 @@ class _CopyWithStubImpl$Input$UpdateEventInput<TRes>
     String? teamId,
     String? title,
   }) => _res;
+}
+
+class Input$UpdateGameStatsInput {
+  factory Input$UpdateGameStatsInput({
+    int? awayScore,
+    int? homeScore,
+    required String id,
+    String? notes,
+    String? opponentName,
+    bool? scoreOverride,
+  }) => Input$UpdateGameStatsInput._({
+    if (awayScore != null) r'awayScore': awayScore,
+    if (homeScore != null) r'homeScore': homeScore,
+    r'id': id,
+    if (notes != null) r'notes': notes,
+    if (opponentName != null) r'opponentName': opponentName,
+    if (scoreOverride != null) r'scoreOverride': scoreOverride,
+  });
+
+  Input$UpdateGameStatsInput._(this._$data);
+
+  factory Input$UpdateGameStatsInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('awayScore')) {
+      final l$awayScore = data['awayScore'];
+      result$data['awayScore'] = (l$awayScore as int?);
+    }
+    if (data.containsKey('homeScore')) {
+      final l$homeScore = data['homeScore'];
+      result$data['homeScore'] = (l$homeScore as int?);
+    }
+    final l$id = data['id'];
+    result$data['id'] = (l$id as String);
+    if (data.containsKey('notes')) {
+      final l$notes = data['notes'];
+      result$data['notes'] = (l$notes as String?);
+    }
+    if (data.containsKey('opponentName')) {
+      final l$opponentName = data['opponentName'];
+      result$data['opponentName'] = (l$opponentName as String?);
+    }
+    if (data.containsKey('scoreOverride')) {
+      final l$scoreOverride = data['scoreOverride'];
+      result$data['scoreOverride'] = (l$scoreOverride as bool?);
+    }
+    return Input$UpdateGameStatsInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  int? get awayScore => (_$data['awayScore'] as int?);
+
+  int? get homeScore => (_$data['homeScore'] as int?);
+
+  String get id => (_$data['id'] as String);
+
+  String? get notes => (_$data['notes'] as String?);
+
+  String? get opponentName => (_$data['opponentName'] as String?);
+
+  bool? get scoreOverride => (_$data['scoreOverride'] as bool?);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('awayScore')) {
+      final l$awayScore = awayScore;
+      result$data['awayScore'] = l$awayScore;
+    }
+    if (_$data.containsKey('homeScore')) {
+      final l$homeScore = homeScore;
+      result$data['homeScore'] = l$homeScore;
+    }
+    final l$id = id;
+    result$data['id'] = l$id;
+    if (_$data.containsKey('notes')) {
+      final l$notes = notes;
+      result$data['notes'] = l$notes;
+    }
+    if (_$data.containsKey('opponentName')) {
+      final l$opponentName = opponentName;
+      result$data['opponentName'] = l$opponentName;
+    }
+    if (_$data.containsKey('scoreOverride')) {
+      final l$scoreOverride = scoreOverride;
+      result$data['scoreOverride'] = l$scoreOverride;
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$UpdateGameStatsInput<Input$UpdateGameStatsInput>
+  get copyWith => CopyWith$Input$UpdateGameStatsInput(this, (i) => i);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$UpdateGameStatsInput ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$awayScore = awayScore;
+    final lOther$awayScore = other.awayScore;
+    if (_$data.containsKey('awayScore') !=
+        other._$data.containsKey('awayScore')) {
+      return false;
+    }
+    if (l$awayScore != lOther$awayScore) {
+      return false;
+    }
+    final l$homeScore = homeScore;
+    final lOther$homeScore = other.homeScore;
+    if (_$data.containsKey('homeScore') !=
+        other._$data.containsKey('homeScore')) {
+      return false;
+    }
+    if (l$homeScore != lOther$homeScore) {
+      return false;
+    }
+    final l$id = id;
+    final lOther$id = other.id;
+    if (l$id != lOther$id) {
+      return false;
+    }
+    final l$notes = notes;
+    final lOther$notes = other.notes;
+    if (_$data.containsKey('notes') != other._$data.containsKey('notes')) {
+      return false;
+    }
+    if (l$notes != lOther$notes) {
+      return false;
+    }
+    final l$opponentName = opponentName;
+    final lOther$opponentName = other.opponentName;
+    if (_$data.containsKey('opponentName') !=
+        other._$data.containsKey('opponentName')) {
+      return false;
+    }
+    if (l$opponentName != lOther$opponentName) {
+      return false;
+    }
+    final l$scoreOverride = scoreOverride;
+    final lOther$scoreOverride = other.scoreOverride;
+    if (_$data.containsKey('scoreOverride') !=
+        other._$data.containsKey('scoreOverride')) {
+      return false;
+    }
+    if (l$scoreOverride != lOther$scoreOverride) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$awayScore = awayScore;
+    final l$homeScore = homeScore;
+    final l$id = id;
+    final l$notes = notes;
+    final l$opponentName = opponentName;
+    final l$scoreOverride = scoreOverride;
+    return Object.hashAll([
+      _$data.containsKey('awayScore') ? l$awayScore : const {},
+      _$data.containsKey('homeScore') ? l$homeScore : const {},
+      l$id,
+      _$data.containsKey('notes') ? l$notes : const {},
+      _$data.containsKey('opponentName') ? l$opponentName : const {},
+      _$data.containsKey('scoreOverride') ? l$scoreOverride : const {},
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$UpdateGameStatsInput<TRes> {
+  factory CopyWith$Input$UpdateGameStatsInput(
+    Input$UpdateGameStatsInput instance,
+    TRes Function(Input$UpdateGameStatsInput) then,
+  ) = _CopyWithImpl$Input$UpdateGameStatsInput;
+
+  factory CopyWith$Input$UpdateGameStatsInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$UpdateGameStatsInput;
+
+  TRes call({
+    int? awayScore,
+    int? homeScore,
+    String? id,
+    String? notes,
+    String? opponentName,
+    bool? scoreOverride,
+  });
+}
+
+class _CopyWithImpl$Input$UpdateGameStatsInput<TRes>
+    implements CopyWith$Input$UpdateGameStatsInput<TRes> {
+  _CopyWithImpl$Input$UpdateGameStatsInput(this._instance, this._then);
+
+  final Input$UpdateGameStatsInput _instance;
+
+  final TRes Function(Input$UpdateGameStatsInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({
+    Object? awayScore = _undefined,
+    Object? homeScore = _undefined,
+    Object? id = _undefined,
+    Object? notes = _undefined,
+    Object? opponentName = _undefined,
+    Object? scoreOverride = _undefined,
+  }) => _then(
+    Input$UpdateGameStatsInput._({
+      ..._instance._$data,
+      if (awayScore != _undefined) 'awayScore': (awayScore as int?),
+      if (homeScore != _undefined) 'homeScore': (homeScore as int?),
+      if (id != _undefined && id != null) 'id': (id as String),
+      if (notes != _undefined) 'notes': (notes as String?),
+      if (opponentName != _undefined) 'opponentName': (opponentName as String?),
+      if (scoreOverride != _undefined)
+        'scoreOverride': (scoreOverride as bool?),
+    }),
+  );
+}
+
+class _CopyWithStubImpl$Input$UpdateGameStatsInput<TRes>
+    implements CopyWith$Input$UpdateGameStatsInput<TRes> {
+  _CopyWithStubImpl$Input$UpdateGameStatsInput(this._res);
+
+  TRes _res;
+
+  call({
+    int? awayScore,
+    int? homeScore,
+    String? id,
+    String? notes,
+    String? opponentName,
+    bool? scoreOverride,
+  }) => _res;
+}
+
+class Input$UpdateGameStatusInput {
+  factory Input$UpdateGameStatusInput({
+    int? currentPeriod,
+    required String gameStatsId,
+    required Enum$GameStatus status,
+  }) => Input$UpdateGameStatusInput._({
+    if (currentPeriod != null) r'currentPeriod': currentPeriod,
+    r'gameStatsId': gameStatsId,
+    r'status': status,
+  });
+
+  Input$UpdateGameStatusInput._(this._$data);
+
+  factory Input$UpdateGameStatusInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('currentPeriod')) {
+      final l$currentPeriod = data['currentPeriod'];
+      result$data['currentPeriod'] = (l$currentPeriod as int?);
+    }
+    final l$gameStatsId = data['gameStatsId'];
+    result$data['gameStatsId'] = (l$gameStatsId as String);
+    final l$status = data['status'];
+    result$data['status'] = fromJson$Enum$GameStatus((l$status as String));
+    return Input$UpdateGameStatusInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  int? get currentPeriod => (_$data['currentPeriod'] as int?);
+
+  String get gameStatsId => (_$data['gameStatsId'] as String);
+
+  Enum$GameStatus get status => (_$data['status'] as Enum$GameStatus);
+
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('currentPeriod')) {
+      final l$currentPeriod = currentPeriod;
+      result$data['currentPeriod'] = l$currentPeriod;
+    }
+    final l$gameStatsId = gameStatsId;
+    result$data['gameStatsId'] = l$gameStatsId;
+    final l$status = status;
+    result$data['status'] = toJson$Enum$GameStatus(l$status);
+    return result$data;
+  }
+
+  CopyWith$Input$UpdateGameStatusInput<Input$UpdateGameStatusInput>
+  get copyWith => CopyWith$Input$UpdateGameStatusInput(this, (i) => i);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! Input$UpdateGameStatusInput ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$currentPeriod = currentPeriod;
+    final lOther$currentPeriod = other.currentPeriod;
+    if (_$data.containsKey('currentPeriod') !=
+        other._$data.containsKey('currentPeriod')) {
+      return false;
+    }
+    if (l$currentPeriod != lOther$currentPeriod) {
+      return false;
+    }
+    final l$gameStatsId = gameStatsId;
+    final lOther$gameStatsId = other.gameStatsId;
+    if (l$gameStatsId != lOther$gameStatsId) {
+      return false;
+    }
+    final l$status = status;
+    final lOther$status = other.status;
+    if (l$status != lOther$status) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$currentPeriod = currentPeriod;
+    final l$gameStatsId = gameStatsId;
+    final l$status = status;
+    return Object.hashAll([
+      _$data.containsKey('currentPeriod') ? l$currentPeriod : const {},
+      l$gameStatsId,
+      l$status,
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$UpdateGameStatusInput<TRes> {
+  factory CopyWith$Input$UpdateGameStatusInput(
+    Input$UpdateGameStatusInput instance,
+    TRes Function(Input$UpdateGameStatusInput) then,
+  ) = _CopyWithImpl$Input$UpdateGameStatusInput;
+
+  factory CopyWith$Input$UpdateGameStatusInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$UpdateGameStatusInput;
+
+  TRes call({int? currentPeriod, String? gameStatsId, Enum$GameStatus? status});
+}
+
+class _CopyWithImpl$Input$UpdateGameStatusInput<TRes>
+    implements CopyWith$Input$UpdateGameStatusInput<TRes> {
+  _CopyWithImpl$Input$UpdateGameStatusInput(this._instance, this._then);
+
+  final Input$UpdateGameStatusInput _instance;
+
+  final TRes Function(Input$UpdateGameStatusInput) _then;
+
+  static const _undefined = <dynamic, dynamic>{};
+
+  TRes call({
+    Object? currentPeriod = _undefined,
+    Object? gameStatsId = _undefined,
+    Object? status = _undefined,
+  }) => _then(
+    Input$UpdateGameStatusInput._({
+      ..._instance._$data,
+      if (currentPeriod != _undefined) 'currentPeriod': (currentPeriod as int?),
+      if (gameStatsId != _undefined && gameStatsId != null)
+        'gameStatsId': (gameStatsId as String),
+      if (status != _undefined && status != null)
+        'status': (status as Enum$GameStatus),
+    }),
+  );
+}
+
+class _CopyWithStubImpl$Input$UpdateGameStatusInput<TRes>
+    implements CopyWith$Input$UpdateGameStatusInput<TRes> {
+  _CopyWithStubImpl$Input$UpdateGameStatusInput(this._res);
+
+  TRes _res;
+
+  call({int? currentPeriod, String? gameStatsId, Enum$GameStatus? status}) =>
+      _res;
 }
 
 class Input$UpdateNotificationInput {
@@ -3041,9 +3467,46 @@ Enum$EventType fromJson$Enum$EventType(String value) {
   }
 }
 
+enum Enum$GameStatus {
+  FINAL,
+  IN_PROGRESS,
+  NOT_STARTED,
+  $unknown;
+
+  factory Enum$GameStatus.fromJson(String value) =>
+      fromJson$Enum$GameStatus(value);
+
+  String toJson() => toJson$Enum$GameStatus(this);
+}
+
+String toJson$Enum$GameStatus(Enum$GameStatus e) {
+  switch (e) {
+    case Enum$GameStatus.FINAL:
+      return r'FINAL';
+    case Enum$GameStatus.IN_PROGRESS:
+      return r'IN_PROGRESS';
+    case Enum$GameStatus.NOT_STARTED:
+      return r'NOT_STARTED';
+    case Enum$GameStatus.$unknown:
+      return r'$unknown';
+  }
+}
+
+Enum$GameStatus fromJson$Enum$GameStatus(String value) {
+  switch (value) {
+    case r'FINAL':
+      return Enum$GameStatus.FINAL;
+    case r'IN_PROGRESS':
+      return Enum$GameStatus.IN_PROGRESS;
+    case r'NOT_STARTED':
+      return Enum$GameStatus.NOT_STARTED;
+    default:
+      return Enum$GameStatus.$unknown;
+  }
+}
+
 enum Enum$MemberRole {
   COACH,
-  LEADER,
   PARENT,
   PLAYER,
   $unknown;
@@ -3058,8 +3521,6 @@ String toJson$Enum$MemberRole(Enum$MemberRole e) {
   switch (e) {
     case Enum$MemberRole.COACH:
       return r'COACH';
-    case Enum$MemberRole.LEADER:
-      return r'LEADER';
     case Enum$MemberRole.PARENT:
       return r'PARENT';
     case Enum$MemberRole.PLAYER:
@@ -3073,8 +3534,6 @@ Enum$MemberRole fromJson$Enum$MemberRole(String value) {
   switch (value) {
     case r'COACH':
       return Enum$MemberRole.COACH;
-    case r'LEADER':
-      return Enum$MemberRole.LEADER;
     case r'PARENT':
       return Enum$MemberRole.PARENT;
     case r'PLAYER':

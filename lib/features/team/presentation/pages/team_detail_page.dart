@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../schedule/data/event_service.dart';
 import '../../../schedule/domain/models/event.dart';
+import '../../../stats/presentation/pages/team_stats_page.dart';
 import '../../data/team_service.dart';
 import '../../domain/models/team.dart';
 
@@ -816,6 +817,44 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                                 ),
                               ),
 
+                              const SizedBox(height: 16),
+
+                              // ── Team Stats Button ──
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => TeamStatsPage(
+                                          teamId: widget.teamId,
+                                          teamName: _team?.name ?? widget.teamName,
+                                          members: _members,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.bar_chart_rounded, size: 18),
+                                  label: Text(
+                                    'Team Stats',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1A1A1A),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      side: const BorderSide(color: Color(0xFF2A2A2A)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
                               const SizedBox(height: 28),
 
                               // ── Upcoming Events ──
@@ -831,7 +870,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                                 )
                               else
                                 SizedBox(
-                                  height: 110,
+                                  height: 130,
                                   child: ListView.separated(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: _upcomingEvents.length,

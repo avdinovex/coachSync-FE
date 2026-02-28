@@ -1,0 +1,120 @@
+# ─────────────────────────────────────────────────────────────────
+# Stats GraphQL Operations
+# ─────────────────────────────────────────────────────────────────
+
+# ── Fragments ────────────────────────────────────────────────────
+
+fragment GamePlayFields on GamePlay {
+  id
+  gameStatsId
+  playerId
+  assistPlayerId
+  playType
+  playResult
+  pointsScored
+  forTeam
+  period
+  gameClock
+  description
+  metadata
+  createdAt
+}
+
+fragment PlayerStatFields on PlayerStat {
+  id
+  gameStatsId
+  userId
+  points
+  assists
+  rebounds
+  minutesPlayed
+  stats
+  createdAt
+  updatedAt
+}
+
+fragment GameStatFields on GameStat {
+  id
+  eventId
+  teamId
+  opponentName
+  finalScore
+  homeScore
+  awayScore
+  gameStatus
+  currentPeriod
+  scoreOverride
+  notes
+  createdAt
+  updatedAt
+  playerStats {
+    ...PlayerStatFields
+  }
+}
+
+fragment GameStatWithPlays on GameStat {
+  ...GameStatFields
+  plays {
+    ...GamePlayFields
+  }
+}
+
+# ── Queries ──────────────────────────────────────────────────────
+
+query GetGameStats($eventId: String!) {
+  gameStats(eventId: $eventId) {
+    ...GameStatWithPlays
+  }
+}
+
+query GetTeamStats($teamId: String!) {
+  teamStats(teamId: $teamId) {
+    ...GameStatFields
+  }
+}
+
+query GetGamePlays($gameStatsId: String!) {
+  gamePlays(gameStatsId: $gameStatsId) {
+    ...GamePlayFields
+  }
+}
+
+# ── Mutations ────────────────────────────────────────────────────
+
+mutation RecordGameStats($input: RecordGameStatsInput!) {
+  recordGameStats(recordGameStatsInput: $input) {
+    ...GameStatFields
+  }
+}
+
+mutation RecordPlay($input: RecordPlayInput!) {
+  recordPlay(recordPlayInput: $input) {
+    ...GamePlayFields
+  }
+}
+
+mutation UndoLastPlay($gameStatsId: String!) {
+  undoLastPlay(gameStatsId: $gameStatsId) {
+    ...GamePlayFields
+  }
+}
+
+mutation UpdateGameStats($input: UpdateGameStatsInput!) {
+  updateGameStats(updateGameStatsInput: $input) {
+    ...GameStatFields
+  }
+}
+
+mutation UpdateGameStatus($input: UpdateGameStatusInput!) {
+  updateGameStatus(updateGameStatusInput: $input) {
+    ...GameStatFields
+  }
+}
+
+# ── Subscriptions ────────────────────────────────────────────────
+
+subscription GameStatsUpdated($eventId: String!) {
+  gameStatsUpdated(eventId: $eventId) {
+    ...GameStatWithPlays
+  }
+}

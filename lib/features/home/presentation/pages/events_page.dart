@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../features/schedule/data/event_service.dart';
 import '../../../../features/schedule/domain/models/event.dart';
+import '../../../../features/stats/presentation/pages/live_game_page.dart';
 import '../../../../features/team/data/team_service.dart';
 import '../../../../features/team/domain/models/team.dart';
 
@@ -1285,6 +1286,50 @@ class _EventDetailSheetState extends State<_EventDetailSheet> {
                     ),
                   ),
 
+                  // ── Game Stats Button (only for game events) ──
+                  if (widget.event.eventType == EventType.game)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => LiveGamePage(
+                                  eventId: widget.event.id,
+                                  teamId: widget.event.teamId,
+                                  teamName: widget.teamMembers.isNotEmpty
+                                      ? 'My Team'
+                                      : 'Team',
+                                  opponentName: null,
+                                  members: widget.teamMembers,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.sports_score_rounded, size: 18),
+                          label: Text(
+                            'Game Stats',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2ECC71),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
                   const SizedBox(height: 16),
 
                   // ══════════════════════════════════════════════════════════
@@ -1897,10 +1942,55 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
       _submitting = false;
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-        backgroundColor: Colors.redAccent,
-      ));
+
+      final errMsg = e.toString();
+      String title;
+      String body;
+
+      if (errMsg.contains('403') || errMsg.contains('Insufficient Permission')) {
+        title = 'Permission Denied';
+        body = _eventType == EventType.practice
+            ? 'You must be a member of this team to create practice events.'
+            : 'Only Coaches and Admins can create ${_eventType.label} events.\n\n'
+              'Your current role does not have permission. '
+              'Ask a Coach to upgrade your role or create a Practice event instead.';
+      } else {
+        title = 'Error';
+        body = errMsg.replaceAll(RegExp(r'EventException:\s*'), '');
+      }
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: Row(
+            children: [
+              Icon(
+                title == 'Permission Denied'
+                    ? Icons.lock_outline_rounded
+                    : Icons.error_outline_rounded,
+                color: Colors.redAccent,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Text(title,
+                  style: GoogleFonts.inter(
+                      color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          content: Text(body,
+              style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14, height: 1.5)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('OK',
+                  style: GoogleFonts.inter(
+                      color: const Color(0xFF2B7DE9), fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
     }
   }
 
