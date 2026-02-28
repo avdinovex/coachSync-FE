@@ -11,24 +11,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedNav = 0;
-  int _currentEventPage = 0;
   int _currentTeamPage = 0;
+  int _currentEventPage = 0;
 
-  final PageController _eventsPageController = PageController(viewportFraction: 0.48);
-
-  final List<String> _teams = const [
-    'RiverDale Hoops',
-    'Master Blasters',
-    'Sky Hawks',
-    'City Tigers',
-    'Legends Club',
-  ];
-
-  final List<Map<String, String>> _events = const [
-    {'title': 'RiverDale Hoops', 'date': '9:00am-11:00am', 'venue': 'Xyz Ground', 'eventDate': '11/9/25'},
-    {'title': 'Master Blasters', 'date': '9:00am-11:00am', 'venue': 'Xyz Ground', 'eventDate': '11/9/25'},
-    {'title': 'Sky Hawks', 'date': '1:00pm-3:00pm', 'venue': 'Abc Stadium', 'eventDate': '12/9/25'},
-  ];
+  final PageController _eventsPageController = PageController(viewportFraction: 0.52);
 
   @override
   void initState() {
@@ -38,6 +24,20 @@ class _HomePageState extends State<HomePage> {
       if (page != _currentEventPage) setState(() => _currentEventPage = page);
     });
   }
+
+  final List<Map<String, String>> _teams = const [
+    {'name': 'RiverDale Hoops', 'image': 'assets/images/basketball.jpg'},
+    {'name': 'Master Blasters', 'image': 'assets/images/cricket.jpg'},
+    {'name': 'Sky Hawks', 'image': 'assets/images/football.jpg'},
+    {'name': 'City Tigers', 'image': 'assets/images/tennis.jpg'},
+    {'name': 'Legends Club', 'image': 'assets/images/basketball.jpg'},
+  ];
+
+  final List<Map<String, String>> _events = const [
+    {'title': 'RiverDale Hoops', 'date': '9:00am-11:00am', 'venue': 'Xyz Ground', 'eventDate': '11/9/25'},
+    {'title': 'Master Blasters', 'date': '9:00am-11:00am', 'venue': 'Xyz Ground', 'eventDate': '11/9/25'},
+    {'title': 'Sky Hawks', 'date': '1:00pm-3:00pm', 'venue': 'Abc Stadium', 'eventDate': '12/9/25'},
+  ];
 
   @override
   void dispose() {
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
 
               // ═══════════════════════════════════════════
               //  UPCOMING EVENTS SECTION
@@ -135,17 +135,17 @@ class _HomePageState extends State<HomePage> {
                 style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 17, fontWeight: FontWeight.w700),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
-              // Event cards – fixed height, horizontal PageView
+              // Event cards – horizontal scrolling carousel
               SizedBox(
-                height: 120,
+                height: 130,
                 child: PageView.builder(
                   controller: _eventsPageController,
                   itemCount: _events.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: _EventCard(
                         title: _events[index]['title']!,
                         date: _events[index]['date']!,
@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 10),
 
-              // ── Dot indicators synced with events ──
+              // ── Pagination dots (synced with Upcoming Events) ──
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
             ],
           ),
         ),
@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
 // ══════════════════════════════════════════════════════════════
 class _CoverflowCarousel extends StatefulWidget {
   const _CoverflowCarousel({required this.teams, required this.onPageChanged});
-  final List<String> teams;
+  final List<Map<String, String>> teams;
   final ValueChanged<int> onPageChanged;
 
   @override
@@ -282,13 +282,19 @@ class _CoverflowCarouselState extends State<_CoverflowCarousel> {
       for (int v = center - 2; v <= center + 2; v++) {
         final real = ((v % n) + n) % n;
         final diff = v - _page;
-        items.add(_CItem(virtual: v, diff: diff, name: widget.teams[real]));
+        items.add(_CItem(
+          virtual: v,
+          diff: diff,
+          name: widget.teams[real]['name']!,
+          image: widget.teams[real]['image']!,
+        ));
       }
 
       // Sort: farthest first → center last (paints on top)
       items.sort((a, b) => b.diff.abs().compareTo(a.diff.abs()));
 
       return Stack(
+        alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
           // ── visual cards ──
@@ -317,7 +323,7 @@ class _CoverflowCarouselState extends State<_CoverflowCarousel> {
                     child: SizedBox(
                       width: cardSize,
                       height: cardSize,
-                      child: _TeamCard(name: item.name, isCenter: isCenter),
+                      child: _TeamCard(name: item.name, image: item.image, isCenter: isCenter),
                     ),
                   ),
                 ),
@@ -339,42 +345,56 @@ class _CoverflowCarouselState extends State<_CoverflowCarousel> {
 }
 
 class _CItem {
-  _CItem({required this.virtual, required this.diff, required this.name});
+  _CItem({required this.virtual, required this.diff, required this.name, required this.image});
   final int virtual;
   final double diff;
   final String name;
+  final String image;
 }
 
 // ══════════════════════════════════════════════════════════════
 //  TEAM CARD  – 1:1 square, gradient + label
 // ══════════════════════════════════════════════════════════════
 class _TeamCard extends StatelessWidget {
-  const _TeamCard({required this.name, required this.isCenter});
+  const _TeamCard({required this.name, required this.image, required this.isCenter});
   final String name;
+  final String image;
   final bool isCenter;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: isCenter
-              ? const [Color(0xFF8B1A1A), Color(0xFF2E2E2E)]
-              : const [Color(0xFF1C1C1C), Color(0xFF111111)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         border: Border.all(
-          color: isCenter ? const Color(0xFFAA3333) : const Color(0xFF333333),
-          width: isCenter ? 1.8 : 1,
+          color: isCenter ? Colors.white.withOpacity(0.25) : const Color(0xFF333333),
+          width: isCenter ? 1.5 : 1,
         ),
         boxShadow: isCenter
-            ? [BoxShadow(color: Colors.red.withOpacity(0.35), blurRadius: 20, spreadRadius: 1)]
+            ? [BoxShadow(color: Colors.white.withOpacity(0.08), blurRadius: 24, spreadRadius: 2)]
             : [],
       ),
       child: Stack(
+        fit: StackFit.expand,
         children: [
+          // Background image
+          Image.asset(
+            image,
+            fit: BoxFit.cover,
+          ),
+          // Dark gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isCenter
+                    ? [const Color(0x55000000), const Color(0x88000000)]
+                    : [const Color(0xCC1C1C1C), const Color(0xCC111111)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
           // Notch at top (subtle)
           Align(
             alignment: Alignment.topCenter,
@@ -430,7 +450,7 @@ class _EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(16),
